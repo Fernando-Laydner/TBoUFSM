@@ -292,9 +292,9 @@ public class DungeonState extends GameState {
         }
 
         // Place lamps on the selected special rooms.
-        int j = 0, n_specialrooms = 2, k = MathUtils.random(0, i-n_specialrooms);
+        int j = 0, n_specialrooms = 2, k = MathUtils.random(0, i-n_specialrooms-1);
         for (Pair sala: specialrooms) {
-            if (k < 0){continue;}
+            if (k > n_specialrooms){continue;}
             int x = (int) (target.x - (8 - sala.getX()) * 720), y = (int) (target.y - (8 - sala.getY()) * 480);
             if (j <= n_specialrooms) {
                 // Exemplo de seleção das salas.

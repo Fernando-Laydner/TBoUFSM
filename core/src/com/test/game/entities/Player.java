@@ -25,9 +25,14 @@ public class Player {
 
     // Animations
     private float animState, attackAnim;
-    private TextureRegion frame1, frame2, frame3, frame4;
-    private Animation<TextureRegion> wLeft, wUp, wDown;
-    private Animation<TextureRegion> aLeft, aUp, aDown, aReturn;
+    private TextureRegion frame1, frame2, frame3;
+    private Animation<TextureRegion> wLeft;
+    private Animation<TextureRegion> wUp;
+    private Animation<TextureRegion> wDown;
+    private Animation<TextureRegion> aLeft;
+    private Animation<TextureRegion> aUp;
+    private Animation<TextureRegion> aDown;
+    private Animation<TextureRegion> aReturn;
     private Animation<TextureRegion> harp;
     private boolean dirFlip;
     private boolean playingHarp;
@@ -79,17 +84,17 @@ public class Player {
         atlas = new TextureAtlas(Gdx.files.internal("img/link.txt"));
         frame1 = atlas.findRegion("down1");
         frame2 = atlas.findRegion("down2");
-        wDown = new Animation(.175f, frame1, frame2);
+        wDown = new Animation<>(.175f, frame1, frame2);
         wDown.setPlayMode(Animation.PlayMode.LOOP_PINGPONG);
 
         frame1 = atlas.findRegion("left1");
         frame2 = atlas.findRegion("left2");
-        wLeft = new Animation(.175f, frame1, frame2);
+        wLeft = new Animation<>(.175f, frame1, frame2);
         wLeft.setPlayMode(Animation.PlayMode.LOOP_PINGPONG);
 
         frame1 = atlas.findRegion("up1");
         frame2 = atlas.findRegion("up2");
-        wUp = new Animation(.175f, frame1, frame2);
+        wUp = new Animation<>(.175f, frame1, frame2);
         wUp.setPlayMode(Animation.PlayMode.LOOP_PINGPONG);
 
         // Harpa
@@ -105,19 +110,19 @@ public class Player {
         frame1 = atlas.findRegion("attack_down1");
         frame2 = atlas.findRegion("attack_down2");
         frame3 = atlas.findRegion("attack_down3");
-        aDown = new Animation(.045f, frame1, frame2, frame3);
+        aDown = new Animation<>(.045f, frame1, frame2, frame3);
         aDown.setPlayMode(Animation.PlayMode.NORMAL);
 
         frame1 = atlas.findRegion("attack_up1");
         frame2 = atlas.findRegion("attack_up2");
         frame3 = atlas.findRegion("attack_up3");
-        aUp = new Animation(.045f, frame1, frame2, frame3);
+        aUp = new Animation<>(.045f, frame1, frame2, frame3);
         aUp.setPlayMode(Animation.PlayMode.NORMAL);
 
         frame1 = atlas.findRegion("attack_left1");
         frame2 = atlas.findRegion("attack_left2");
         frame3 = atlas.findRegion("attack_left3");
-        aLeft = new Animation(.045f, frame1, frame2, frame3);
+        aLeft = new Animation<>(.045f, frame1, frame2, frame3);
         aLeft.setPlayMode(Animation.PlayMode.NORMAL);
 
         aReturn = wDown;

@@ -25,34 +25,37 @@ import com.test.game.utils.b2d.BodyBuilder;
 import com.test.game.utils.Pair;
 import static com.test.game.utils.Constants.PPM;
 import static com.test.game.utils.b2d.BodyBuilder.*;
+import static java.util.Arrays.asList;
+
 import com.test.game.entities.Bullet;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 
 public class DungeonState extends GameState {
 
-    private Player player;
+    private final Player player;
 
     // Hud
-    private BitmapFont font;
-    private OrthographicCamera hud;
+    private final BitmapFont font;
+    private final OrthographicCamera hud;
     private String cameraType = "Loading...";
 
     // Camera tracker stuff
-    private DungeonRoom[][] rooms;
-    private Vector2 pos;
+    private final DungeonRoom[][] rooms;
+    private final Vector2 pos;
 
     // Player stuff
-    private Vector2 target;
+    private final Vector2 target;
     private PointLight currentTorch;
     public float SHOOT_TIMER;
 
     // b2d/lock stuff
-    private RayHandler rays;
-    private Box2DDebugRenderer b2dr;
-    private World world;
+    private final RayHandler rays;
+    private final Box2DDebugRenderer b2dr;
+    private final World world;
 
     public DungeonState(GameStateManager gsm) {
         super(gsm);
@@ -66,7 +69,7 @@ public class DungeonState extends GameState {
         world = new World(new Vector2(0f, 0f), false);
         world.setContactListener(new WorldContactListener());
         rays = new RayHandler(world);
-        rays.setAmbientLight(1f);
+        rays.setAmbientLight(0.4f);
         
         b2dr = new Box2DDebugRenderer();
 
@@ -83,7 +86,7 @@ public class DungeonState extends GameState {
         SHOOT_TIMER = 0;
     }
 
-    private Array<Bullet> bullets = new Array<>();
+    private final Array<Bullet> bullets = new Array<>();
 
     public void shoots(float delta){
 
@@ -264,6 +267,7 @@ public class DungeonState extends GameState {
 
         // Place blocks and select potential special room locations
         Array<Pair> specialrooms = new Array<>();
+        i = 0;
         for (Pair sala: Available) {
             System.out.println(Arrays.toString(rooms[sala.getX() - 1][sala.getY() - 1].getAttached_rooms()));
             int[] attached = rooms[sala.getX() - 1][sala.getY() - 1].getAttached_rooms();
@@ -281,21 +285,23 @@ public class DungeonState extends GameState {
             if (attached[1] == 0) {
                 createBox(world, x, y - 215, 76, 50, true, true);
             }
-            if (rooms[sala.getX() - 1][sala.getY() - 1].amountAttached_rooms() == 1){
+            if (rooms[sala.getX() - 1][sala.getY() - 1].amountAttached_rooms() == 1 && sala.getX() != 8 && sala.getY()!= 8){
                 specialrooms.add(new Pair(sala.getX(), sala.getY()));
+                i++;
             }
         }
 
         // Place lamps on the selected special rooms.
-        Collections.shuffle(Collections.singletonList(specialrooms));
-        int j = 0, n_specialrooms = 2;
+        int j = 0, n_specialrooms = 2, k = MathUtils.random(0, i-n_specialrooms);
         for (Pair sala: specialrooms) {
+            if (k < 0){continue;}
             int x = (int) (target.x - (8 - sala.getX()) * 720), y = (int) (target.y - (8 - sala.getY()) * 480);
-            if (j <= n_specialrooms && sala.getX() != 8 && sala.getY()!= 8){
+            if (j <= n_specialrooms) {
                 // Exemplo de seleção das salas.
-                createLamp(new Vector2(x,y));
+                createLamp(new Vector2(x, y));
                 j++;
             }
+
         }
     }
 

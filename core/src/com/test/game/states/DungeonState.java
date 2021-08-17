@@ -301,7 +301,6 @@ public class DungeonState extends GameState {
                 createLamp(new Vector2(x, y));
                 j++;
             }
-
         }
     }
 

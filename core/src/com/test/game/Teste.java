@@ -18,7 +18,7 @@ public class Teste extends ApplicationAdapter {
 	public static final String TITLE = "Trabalho";
 	public static final int V_WIDTH = 720;
 	public static final int V_HEIGHT = 480;
-	public static final float SCALE = 1f;
+	public static float SCALE = 1f;
 
 	//public static Engine ashley;
 	public static AssetManager assets;
@@ -39,7 +39,7 @@ public class Teste extends ApplicationAdapter {
 		assets.load("img/switch.png", Texture.class);
 
 		camera = new OrthographicCamera();
-		camera.setToOrtho(false, w / SCALE, h / SCALE);
+		camera.setToOrtho(false, w/SCALE, h/SCALE );
 
 		batch = new SpriteBatch();
 		batch.setProjectionMatrix(camera.combined);
@@ -63,7 +63,7 @@ public class Teste extends ApplicationAdapter {
 
 	@Override
 	public void resize(int width, int height) {
-		gsm.resize((int) (720 / SCALE), (int) (480 / SCALE));
+		gsm.resize((int) (720/SCALE), (int) (480/ SCALE));
 	}
 
 	@Override
@@ -79,3 +79,5 @@ public class Teste extends ApplicationAdapter {
 		return batch;
 	}
 }
+
+

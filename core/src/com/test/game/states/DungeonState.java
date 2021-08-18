@@ -29,6 +29,7 @@ import static java.util.Arrays.asList;
 
 import com.test.game.entities.Bullet;
 
+import java.awt.Window;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -65,11 +66,12 @@ public class DungeonState extends GameState {
         hud = new OrthographicCamera();
         hud.setToOrtho(false, 720, 480);
 
+
         // b2d world init
         world = new World(new Vector2(0f, 0f), false);
         world.setContactListener(new WorldContactListener());
         rays = new RayHandler(world);
-        rays.setAmbientLight(0.4f);
+        rays.setAmbientLight(1f);
         
         b2dr = new Box2DDebugRenderer();
 

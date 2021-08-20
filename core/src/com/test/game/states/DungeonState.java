@@ -29,9 +29,6 @@ import static com.test.game.utils.b2d.BodyBuilder.*;
 
 import com.test.game.entities.Bullet;
 
-
-
-
 public class DungeonState extends GameState {
 
     private final Player player;
@@ -40,6 +37,11 @@ public class DungeonState extends GameState {
     private final BitmapFont font;
     private final OrthographicCamera hud;
     private String cameraType = "Loading...";
+
+    // Pause
+    private final OrthographicCamera paused;
+    private String pauseType = "Paused";
+    private Boolean ispaused = false;
 
     // Camera tracker stuff
     private final DungeonRoom[][] rooms;
@@ -62,6 +64,10 @@ public class DungeonState extends GameState {
         font = new BitmapFont();
         hud = new OrthographicCamera();
         hud.setToOrtho(false, 720, 480);
+
+        //Pause init
+        paused = new OrthographicCamera();
+        paused.setToOrtho(false, 720, 480);
 
 
         // b2d world init
@@ -132,70 +138,78 @@ public class DungeonState extends GameState {
     @Override
     public void update(float delta){
 
-        world.step(1 / 60f, 6, 2);
+        if (Gdx.input.isKeyJustPressed(Input.Keys.P)){
+            if (ispaused)
+                ispaused = false;
+            else
+                ispaused = true;
+        }
+        if (!ispaused) {
+            world.step(1 / 60f, 6, 2);
 
-        player.controller(delta);
+            player.controller(delta);
 
-        // Create Lamp
-        if(Gdx.input.isKeyJustPressed(Input.Keys.Y)) {
-            createLamp(player.getPosition().scl(32));
-        }
+            // Create Lamp
+            if (Gdx.input.isKeyJustPressed(Input.Keys.Y)) {
+                createLamp(player.getPosition().scl(32));
+            }
 
-        // Shooting
-        shoots(delta);
+            // Shooting
+            shoots(delta);
 
-        // Room Check
-        if (rooms[(int) pos.x][(int) pos.y].isItSimple() == 0 && !rooms[(int)pos.x][(int)pos.y].isCompleted()) {
-            rooms[(int)pos.x][(int)pos.y].closeDoors(); // Closes the doors
-            Enemy novo = new Enemy();
-            novo.spawnXEnemy(world, 4, target, enemies); // Spawn the enemies
-            rooms[(int) pos.x][(int) pos.y].toggleSimple(); // Sends next step for saving resources
-            rays.setAmbientLight(.4f); // Dims the light
-        }
+            // Room Check
+            if (rooms[(int) pos.x][(int) pos.y].isItSimple() == 0 && !rooms[(int) pos.x][(int) pos.y].isCompleted()) {
+                rooms[(int) pos.x][(int) pos.y].closeDoors(); // Closes the doors
+                Enemy novo = new Enemy();
+                novo.spawnXEnemy(world, 4, target, enemies); // Spawn the enemies
+                rooms[(int) pos.x][(int) pos.y].toggleSimple(); // Sends next step for saving resources
+                rays.setAmbientLight(.4f); // Dims the light
+            }
 
-        // Room Transition
-        // Go Right
-        if(player.getPosition().x > (target.x + 360) / PPM) {
-            target.x += 720;
-            player.getBody().setLinearVelocity(25, 0);
-            pos.x += 1;
-        }
-        // Go Left
-        if(player.getPosition().x < (target.x - 360) / PPM) {
-            target.x -= 720;
-            player.getBody().setLinearVelocity(-25, 0);
-            pos.x -= 1;
-        }
-        // Go Up
-        if(player.getPosition().y > (target.y + 240) / PPM) {
-            target.y += 480;
-            player.getBody().setLinearVelocity(0, 25);
-            pos.y += 1;
-        }
-        // Go Down
-        if(player.getPosition().y < (target.y - 240) / PPM) {
-            target.y -= 480;
-            player.getBody().setLinearVelocity(0, -25);
-            pos.y -= 1;
-        }
+            // Room Transition
+            // Go Right
+            if (player.getPosition().x > (target.x + 360) / PPM) {
+                target.x += 720;
+                player.getBody().setLinearVelocity(25, 0);
+                pos.x += 1;
+            }
+            // Go Left
+            if (player.getPosition().x < (target.x - 360) / PPM) {
+                target.x -= 720;
+                player.getBody().setLinearVelocity(-25, 0);
+                pos.x -= 1;
+            }
+            // Go Up
+            if (player.getPosition().y > (target.y + 240) / PPM) {
+                target.y += 480;
+                player.getBody().setLinearVelocity(0, 25);
+                pos.y += 1;
+            }
+            // Go Down
+            if (player.getPosition().y < (target.y - 240) / PPM) {
+                target.y -= 480;
+                player.getBody().setLinearVelocity(0, -25);
+                pos.y -= 1;
+            }
 
-        if(currentTorch != null) {
-            currentTorch.setColor(.8f + r, g, .2f, .7f);
-            currentTorch.update();
+            if (currentTorch != null) {
+                currentTorch.setColor(.8f + r, g, .2f, .7f);
+                currentTorch.update();
+            }
+            if (up) {
+                r += .03;
+                g = MathUtils.random(.7f) - .1f;
+                if (r > .9f)
+                    up = !up;
+            } else {
+                r -= .03;
+                if (r < .4f)
+                    up = false;
+            }
+            cameraUpdate();
+            batch.setProjectionMatrix(camera.combined);
+            rays.setCombinedMatrix(camera.combined.cpy().scl(PPM), player.getPosition().x, player.getPosition().y, 720, 500);
         }
-        if(up) {
-            r += .03;
-            g = MathUtils.random(.7f) - .1f;
-            if(r > .9f)
-                up = !up;
-        } else {
-            r -= .03;
-            if(r < .4f)
-                up = false;
-        }
-        cameraUpdate();
-        batch.setProjectionMatrix(camera.combined);
-        rays.setCombinedMatrix(camera.combined.cpy().scl(PPM), player.getPosition().x, player.getPosition().y,720,500);
     }
 
     private boolean up = true;
@@ -203,33 +217,41 @@ public class DungeonState extends GameState {
 
     @Override
     public void render() {
+
         Gdx.gl.glClearColor(.25f, .25f, .25f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        b2dr.render(world, camera.combined.cpy().scl(PPM));
+        if (!ispaused) {
+            b2dr.render(world, camera.combined.cpy().scl(PPM));
+            rooms[(int) pos.x][(int) pos.y].render(batch);
+            rays.updateAndRender();
+            player.render(batch);
 
-        rooms[(int) pos.x][(int) pos.y].render(batch);
-        rays.updateAndRender();
-        player.render(batch);
 
-        Bullet bala = new Bullet(player);
-        bala.destroyBullet(world, bullets);
+            Bullet bala = new Bullet(player);
+            bala.destroyBullet(world, bullets);
 
-        Enemy dummy = new Enemy();
-        dummy.isDead(world, enemies);
-        dummy.enemiesAI(world, enemies, bullets, player.getPosition(), rays);
+            Enemy dummy = new Enemy();
+            dummy.isDead(world, enemies);
+            dummy.enemiesAI(world, enemies, bullets, player.getPosition(), rays);
 
-        if (player.getHP() <= 0){
-            Teste.dead = true;
+            if (player.getHP() <= 0) {
+                Teste.dead = true;
+            }
+
+            if (rooms[(int) pos.x][(int) pos.y].isItSimple() == 1 && enemies.isEmpty()) {
+                rooms[(int) pos.x][(int) pos.y].setCompleted();
+                rooms[(int) pos.x][(int) pos.y].openDoors();
+                rooms[(int) pos.x][(int) pos.y].toggleSimple();
+                rays.setAmbientLight(1f);
+            }
         }
-
-        if (rooms[(int) pos.x][(int) pos.y].isItSimple() == 1 && enemies.isEmpty()){
-            rooms[(int) pos.x][(int) pos.y].setCompleted();
-            rooms[(int) pos.x][(int) pos.y].openDoors();
-            rooms[(int) pos.x][(int) pos.y].toggleSimple();
-            rays.setAmbientLight(1f);
+        else{
+            batch.setProjectionMatrix(paused.combined);
+            batch.begin();
+            font.draw(batch, pauseType, 350, 240);
+            batch.end();
         }
-
         batch.setProjectionMatrix(hud.combined);
         batch.begin();
         font.draw(batch, cameraType, 100, 150);

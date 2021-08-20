@@ -57,7 +57,7 @@ public class Teste extends ApplicationAdapter {
 
 		if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1) || dead) {
 			dead = false;
-			gsm.setState();
+			gsm.setState(GameStateManager.State.DUNGEON);
 		}
 
 		if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) Gdx.app.exit();

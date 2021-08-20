@@ -1,6 +1,8 @@
 package com.test.game.handlers;
 
 import com.badlogic.gdx.physics.box2d.*;
+import com.test.game.entities.Bullet;
+import com.test.game.entities.Enemy;
 import com.test.game.map.FloorSwitch;
 import com.test.game.entities.Player;
 
@@ -26,6 +28,15 @@ public class WorldContactListener implements ContactListener {
                 ((FloorSwitch) fb.getUserData()).activate();
             }
         }
+
+        if (isBulletContact(fa, fb)){
+            if(fa.getUserData() instanceof Enemy){
+                ((Enemy) fa.getUserData()).takeDamage((Bullet) fb.getUserData());
+            }
+            else {
+                ((Enemy) fb.getUserData()).takeDamage((Bullet) fa.getUserData());
+            }
+        }
     }
 
     @Override
@@ -36,6 +47,7 @@ public class WorldContactListener implements ContactListener {
         if(fa == null || fb == null) return;
         if(fa.getUserData() == null || fb.getUserData() == null) return;
 
+        /*
         if(isSwitchContact(fa, fb)) {
             if(fa.getUserData() instanceof FloorSwitch) {
                 ((FloorSwitch) fa.getUserData()).deactivate();
@@ -43,6 +55,8 @@ public class WorldContactListener implements ContactListener {
                 ((FloorSwitch) fb.getUserData()).deactivate();
             }
         }
+
+         */
     }
 
     @Override
@@ -56,6 +70,15 @@ public class WorldContactListener implements ContactListener {
     private boolean isSwitchContact(Fixture a, Fixture b) {
         if(a.getUserData() instanceof FloorSwitch || b.getUserData() instanceof FloorSwitch) {
             if(b.getUserData() instanceof Player || a.getUserData() instanceof Player) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isBulletContact(Fixture a, Fixture b){
+        if (a.getUserData() instanceof Bullet || b.getUserData() instanceof Bullet){
+            if(b.getUserData() instanceof Enemy || a.getUserData() instanceof Enemy){
                 return true;
             }
         }

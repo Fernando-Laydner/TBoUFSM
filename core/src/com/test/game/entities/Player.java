@@ -11,6 +11,7 @@ import com.badlogic.gdx.physics.box2d.*;
 import com.test.game.utils.Constants;
 import com.badlogic.gdx.graphics.g2d.Animation;
 
+
 import static com.test.game.utils.Constants.PPM;
 
 public class Player {
@@ -33,17 +34,18 @@ public class Player {
     private Animation<TextureRegion> aUp;
     private Animation<TextureRegion> aDown;
     private Animation<TextureRegion> aReturn;
-    private Animation<TextureRegion> harp;
     private boolean dirFlip;
-    private boolean playingHarp;
     private boolean attackComplete;
 
     //Bullets
     private float damage;
     private float atrito;
     private float distancia;
+    private float firerate;
     private float shotSpeed;
     private float bouncy;
+    private boolean diagonal;
+
 
     public Player(World world, RayHandler rays) {
         this.body = createCircle(world, 0, 0, 16);
@@ -60,7 +62,6 @@ public class Player {
         f.maskBits = Constants.BIT_WALL | Constants.BIT_PLAYER;
         light.setContactFilter(f);
 
-        playingHarp = false;
         attackComplete = true;
         dirFlip = false;
         hp = 100;
@@ -68,11 +69,12 @@ public class Player {
 
 
         //Bullet
-        atrito = .4f;
-        distancia = 7.5f;
-        damage = 2;
-        bouncy = 1f;
-        shotSpeed = 0.3f;
+        atrito = .6f;
+        distancia = 10;
+        damage = 10;
+        bouncy = 0f;
+        shotSpeed = 8;
+        firerate = .4f;
 
 
         initAnimations();
@@ -96,16 +98,6 @@ public class Player {
         frame2 = atlas.findRegion("up2");
         wUp = new Animation<>(.175f, frame1, frame2);
         wUp.setPlayMode(Animation.PlayMode.LOOP_PINGPONG);
-
-        // Harpa
-        /*
-        frame1 = atlas.findRegion("song1");
-        frame2 = atlas.findRegion("song2");
-        frame3 = atlas.findRegion("song3");
-        frame4 = atlas.findRegion("song4");
-        harp = new Animation(.25f, frame1, frame2, frame3, frame4);
-        harp.setPlayMode(Animation.PlayMode.LOOP_PINGPONG);
-         */
 
         frame1 = atlas.findRegion("attack_down1");
         frame2 = atlas.findRegion("attack_down2");
@@ -212,17 +204,10 @@ public class Player {
         if(y != 0) {
             body.setLinearVelocity(body.getLinearVelocity().x, y * SPEED * delta);
         }
-        //Animação da Harpa
-        /*
+        // Walking
         if(y != 0 || x != 0) {
-            playingHarp = false;
             animState += delta;
-        } else if(Gdx.input.isKeyJustPressed((Input.Keys.C)) || playingHarp) {
-            playingHarp = true;
-            animState += delta;
-            current = harp.getKeyFrame(animState, true);
         }
-         */
     }
 
     public void render(Batch batch) {
@@ -255,10 +240,18 @@ public class Player {
     public float getShotSpeed(){
         return shotSpeed;
     }
+    public float getFirerate(){
+        return firerate;
+    }
     public float getBouncy(){
         return bouncy;
     }
+    public Body getBody(){
+        return body;
+    }
+    public boolean isDiagonal(){return diagonal;}
 
+    public void toggleDiagonal(){if(diagonal){diagonal = false;}else{ diagonal = true;}}
     public void setDistance(float distancia){
         this.distancia = distancia;
     }
@@ -269,7 +262,7 @@ public class Player {
         this.damage = damage;
     }
     public void setBouncy(float bouncy){ this.bouncy = bouncy; }
-    public float setShotSpeed(float shotSpeed){ return this.shotSpeed =  shotSpeed; }
+    public void setShotSpeed(float shotSpeed){ this.shotSpeed =  shotSpeed; }
     public void dispose() {
         atlas.dispose();
     }
@@ -284,6 +277,7 @@ public class Player {
         def.fixedRotation = true;
         pBody = world.createBody(def);
 
+        //PolygonShape shape = new PolygonShape();
         CircleShape shape = new CircleShape();
         shape.setRadius(radius / PPM);
 
@@ -291,7 +285,7 @@ public class Player {
         fd.shape = shape;
         fd.density = 1.0f;
         fd.filter.categoryBits = Constants.BIT_PLAYER;
-        fd.filter.maskBits = Constants.BIT_WALL | Constants.BIT_SENSOR;
+        fd.filter.maskBits = Constants.BIT_WALL | Constants.BIT_SENSOR | Constants.BIT_ENEMY | Constants.BIT_ENEMY_BULLET;
         fd.filter.groupIndex = 0;
         pBody.createFixture(fd).setUserData(this);
         shape.dispose();

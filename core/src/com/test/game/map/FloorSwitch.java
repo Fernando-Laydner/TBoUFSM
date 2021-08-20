@@ -1,5 +1,6 @@
 package com.test.game.map;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -18,16 +19,16 @@ public class FloorSwitch {
     private Texture tex;
     private TextureRegion on, off;
     private boolean activated, flips;
-    private Array<PrismaticJoint> control;
+    private DungeonRoom control;
 
-    public FloorSwitch(World world, float x, float y, Array<PrismaticJoint> control, boolean flips) {
+    public FloorSwitch(World world, float x, float y, DungeonRoom control, boolean flips) {
         this.world = world;
         this.control = control;
         this.activated = false;
         this.flips = flips;
 
         // Setup textures
-        tex = Teste.assets.get("img/switch.png", Texture.class);
+        tex = new Texture(Gdx.files.internal("img/switch.png"));
         on = new TextureRegion(tex);
         off = new TextureRegion(tex);
 
@@ -72,17 +73,7 @@ public class FloorSwitch {
     public void activate() {
         if(!activated) {
             activated = true;
-            for (PrismaticJoint j : control) {
-                j.setMotorSpeed(-j.getMotorSpeed());
-            }
-        }
-    }
-    public void deactivate() {
-        if(flips && activated) {
-            activated = false;
-            for (PrismaticJoint j : control) {
-                j.setMotorSpeed(-j.getMotorSpeed());
-            }
+            control.setCompleted();
         }
     }
 }

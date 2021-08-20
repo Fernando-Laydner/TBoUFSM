@@ -5,33 +5,36 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.badlogic.gdx.physics.box2d.PolygonShape;
+import com.badlogic.gdx.physics.box2d.Filter;
 import com.badlogic.gdx.physics.box2d.World;
-import com.badlogic.gdx.physics.box2d.joints.PrismaticJoint;
-import com.badlogic.gdx.physics.box2d.joints.PrismaticJointDef;
 import com.badlogic.gdx.utils.Array;
 import com.test.game.entities.Player;
+import com.test.game.utils.Constants;
 import com.test.game.utils.b2d.BodyBuilder;
 
-import static com.test.game.utils.Constants.PPM;
+import static com.test.game.utils.b2d.BodyBuilder.createBox;
 
 public class DungeonRoom {
 
     private World world;
 
-    private int x = -2, y;
+    private int x, y;
     private Vector2 center;
     private Array<Body> structure;
     private Array<FloorSwitch> switches;
     private int[] attached_rooms = {0,0,0,0};
+    private boolean completed;
+    private int keep_it_simple;
+    private Array<Body> doors;
     private Array<Player> enemies;
 
     public DungeonRoom(World world, Vector2 roomCenter, int x, int y) {
         this.world = world;
-        Vector2 temp = new Vector2(roomCenter.x - (7-x)*720, roomCenter.y - (7-y)*480);
-        this.center = temp;
+        this.center = new Vector2(roomCenter.x - (7-x)*720, roomCenter.y - (7-y)*480);
         this.structure = new Array<Body>();
+        this.completed = false;
+        this.keep_it_simple = 0;
+        this.doors = new Array<>();
         this.switches = new Array<FloorSwitch>();
         this.x = x;
         this.y = y;
@@ -40,9 +43,13 @@ public class DungeonRoom {
     }
 
     private void initRoomStructure() {
+        Filter f = new Filter();
+        f.categoryBits = Constants.BIT_WALL;
+        f.maskBits = Constants.BIT_ENEMY_BULLET | Constants.BIT_PLAYER | Constants.BIT_BULLET | Constants.BIT_ENEMY;
+
         // Bottom Wall
-        structure.add(right = BodyBuilder.createBox(world, center.x + 199, center.y - 228, 323, 24, true, true));
-        structure.add(left = BodyBuilder.createBox(world, center.x - 199, center.y - 228, 323, 24, true, true));
+        structure.add(BodyBuilder.createBox(world, center.x + 199, center.y - 228, 323, 24, true, true));
+        structure.add(BodyBuilder.createBox(world, center.x - 199, center.y - 228, 323, 24, true, true));
 
         // Top Wall
         structure.add(BodyBuilder.createBox(world, center.x + 199, center.y + 228, 323, 24, true, true));
@@ -55,71 +62,52 @@ public class DungeonRoom {
         // Left wall
         structure.add(BodyBuilder.createBox(world, center.x - 348, center.y + 127, 24, 178, true, true));
         structure.add(BodyBuilder.createBox(world, center.x - 348, center.y - 127, 24, 178, true, true));
+
+        for (Body parede: structure){
+            parede.getFixtureList().get(0).setFilterData(f);
+        }
+
     }
 
-    private Body left, right;
     public void createTestLock() {
-        Array<PrismaticJoint> joints = new Array<>();
-        Body leftSpike, rightSpike;
-        BodyDef bDef = new BodyDef();
-        bDef.type = BodyDef.BodyType.DynamicBody;
-        bDef.position.set(center.x / PPM, (center.y - 215) / PPM);
-        bDef.fixedRotation = true;
-
-        leftSpike = world.createBody(bDef);
-        rightSpike = world.createBody(bDef);
-
-        float[] vertsL = new float[]{
-                0,0,
-                38/PPM,0,
-                12/PPM,23/PPM,
-                0,23/PPM
-        };
-        float[] vertsR = new float[]{
-                0,0,
-                -38/PPM,0,
-                -12/PPM,23/PPM,
-                0,23/PPM
-        };
-
-        PolygonShape shape = new PolygonShape();
-        shape.set(vertsL);
-        leftSpike.createFixture(shape, 1.0f);
-        shape.set(vertsR);
-        rightSpike.createFixture(shape, 1.0f);
-        shape.dispose();
-
-        PrismaticJointDef pDef = new PrismaticJointDef();
-        pDef.enableMotor = true;
-        pDef.motorSpeed = 10;
-        pDef.maxMotorForce = 500;
-        pDef.bodyA = left;
-        pDef.bodyB = leftSpike;
-        pDef.enableLimit = true;
-        pDef.lowerTranslation = 130 / PPM;
-        pDef.upperTranslation = 172 / PPM;
-        pDef.localAnchorB.set(12 / PPM, 11 / PPM);
-        pDef.collideConnected = false;
-        joints.add((PrismaticJoint) world.createJoint(pDef));
-
-        pDef.bodyA = right;
-        pDef.bodyB = rightSpike;
-        pDef.collideConnected = false;
-        pDef.enableMotor = true;
-        pDef.motorSpeed = -10;
-        pDef.maxMotorForce = 500;
-        pDef.upperTranslation = -130 / PPM;
-        pDef.lowerTranslation = -172 / PPM;
-        pDef.localAnchorB.set(-12 / PPM, 11 / PPM);
-        joints.add((PrismaticJoint) world.createJoint(pDef));
-
         int i = MathUtils.random(1);
-        switches.add(new FloorSwitch(world, center.x + MathUtils.random(280f) - 140f, center.y + MathUtils.random(280f) - 140f, joints, i == 1));
+
+        switches.add(new FloorSwitch(world, center.x + MathUtils.random(280f) - 140f, center.y + MathUtils.random(280f) - 140f, this, i == 1));
     }
 
     public void render(Batch batch) {
         for(FloorSwitch fs : switches) {
             fs.draw(batch);
+        }
+    }
+
+    public void closeDoors(){
+        int x = (int) (center.x), y = (int) (center.y);
+        Filter f = new Filter();
+        f.categoryBits = Constants.BIT_WALL;
+        f.maskBits = Constants.BIT_ENEMY_BULLET | Constants.BIT_PLAYER | Constants.BIT_BULLET | Constants.BIT_ENEMY;
+
+        if (attached_rooms[3] == 1) {
+            doors.add(createBox(world, x + 355, y, 30, 76, true, true));
+        }
+        if (attached_rooms[2] == 1) {
+            doors.add(createBox(world, x - 355, y, 30, 76, true, true));
+        }
+
+        if (attached_rooms[0] == 1) {
+            doors.add(createBox(world, x, y + 235, 76, 30, true, true));
+        }
+        if (attached_rooms[1] == 1) {
+            doors.add(createBox(world, x, y - 235, 76, 30, true, true));
+        }
+        for (Body door: doors){
+            door.getFixtureList().get(0).setFilterData(f);
+        }
+    }
+
+    public void openDoors(){
+        for (Body door: doors) {
+            world.destroyBody(door);
         }
     }
 
@@ -129,13 +117,20 @@ public class DungeonRoom {
     public int getY() {
         return y;
     }
+    public boolean isCompleted(){ return completed;}
     public int[] getAttached_rooms() { return attached_rooms; }
+    public Vector2 getCenter(){return center; }
+    public int isItSimple(){return keep_it_simple; }
     public int amountAttached_rooms(){
         int total = 0;
         for (int room:attached_rooms) { total = total + room;}
         return total;
     }
 
+    public void setCompleted(){
+        completed = true;
+    }
+    public void toggleSimple(){keep_it_simple += 1;}
     public void setAttached_rooms(int pos, int rooms){ attached_rooms[pos] = rooms; }
 
     // TODO: Add Enemy

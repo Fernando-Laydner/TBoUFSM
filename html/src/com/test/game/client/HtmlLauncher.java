@@ -5,6 +5,8 @@ import com.badlogic.gdx.backends.gwt.GwtApplication;
 import com.badlogic.gdx.backends.gwt.GwtApplicationConfiguration;
 import com.test.game.Teste;
 
+import java.awt.Window;
+
 public class HtmlLauncher extends GwtApplication {
 
         @Override

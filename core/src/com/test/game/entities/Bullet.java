@@ -1,10 +1,14 @@
 package com.test.game.entities;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.Filter;
+import com.badlogic.gdx.physics.box2d.FixtureDef;
+import com.badlogic.gdx.physics.box2d.Shape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.test.game.utils.Constants;
 import com.test.game.utils.Speed;
@@ -25,6 +29,7 @@ public class Bullet {
     private float atrito;
     private float damage;
     private float bouncy;
+    private float shotspeed;
 
     public Bullet(Player player){
         b = null;
@@ -34,19 +39,31 @@ public class Bullet {
         atrito = player.getAtrito();
         damage = player.getDamage();
         bouncy = player.getBouncy();
+        shotspeed = player.getShotSpeed();
     }
 
     public void createBullet(World world, Vector2 position, int vert, int horiz, RayHandler rays){
-        b = BodyBuilder.createCircle(world, position.x*PPM + Integer.signum(horiz)*16, position.y*PPM + Integer.signum(vert)*16, 4, false, false,
-                Constants.BIT_WALL, Constants.BIT_PLAYER, (short) 0);
-        b.setLinearDamping(atrito);
-        b.getFixtureList().get(0).setRestitution(bouncy);
-        bullet = new Vector2(distance*Integer.signum(horiz), distance*Integer.signum(vert));
+        //b = BodyBuilder.createCircle(world, position.x*PPM + Integer.signum(horiz)*16, position.y*PPM + Integer.signum(vert)*16, 4, false, false, Constants.BIT_BULLET, Constants.BIT_WALL, (short) 1);
+        BodyDef bDef = new BodyDef();
+        bDef.position.set(position.x + Integer.signum(horiz), position.y + Integer.signum(vert));
+        bDef.type = BodyDef.BodyType.DynamicBody;
+        bDef.linearDamping = atrito;
+
+        CircleShape shape = new CircleShape();
+        shape.setRadius(4/PPM);
+
+        FixtureDef fd = new FixtureDef();
+        fd.shape = shape;
+        fd.restitution = bouncy;
+        fd.density = 1f;
+        fd.filter.categoryBits = Constants.BIT_BULLET;
+        fd.filter.maskBits = Constants.BIT_WALL | Constants.BIT_ENEMY;
+        b = world.createBody(bDef);
+        b.createFixture(fd).setUserData(this);
+
+        bullet = new Vector2(shotspeed*Integer.signum(horiz), shotspeed*Integer.signum(vert));
         b.setLinearVelocity(bullet);
-        Filter f = new Filter();
-        f.categoryBits = Constants.BIT_SENSOR;
-        f.maskBits = Constants.BIT_PLAYER | Constants.BIT_WALL;
-        b.getFixtureList().get(0).setFilterData(f);
+
         currentTorch = new PointLight(rays, 15, new Color(.4f, .1f, .6f, .7f), 2, 0, 0);
         currentTorch.setSoftnessLength(0f);
         currentTorch.attachToBody(b);
@@ -54,12 +71,17 @@ public class Bullet {
 
     public void destroyBullet(World world, Array<Bullet> bullets){
         for (Bullet bala: bullets) {
-            if (Speed.getSpeed(bala.b.getLinearVelocity().x, bala.b.getLinearVelocity().y) < 14) {
+                if (Speed.getSpeed(bala.b.getLinearVelocity().x, bala.b.getLinearVelocity().y) < distance) {
                 bala.currentTorch.setDistance(0f);
                 world.destroyBody(bala.b);
                 bala.bullet = null;
                 bullets.removeValue(bala, true);
             }
         }
+    }
+
+
+    public float dealDamage(){
+        return damage;
     }
 }

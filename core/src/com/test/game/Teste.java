@@ -1,5 +1,6 @@
 package com.test.game;
 
+//import com.badlogic.ashley.core.Engine;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -18,9 +19,10 @@ public class Teste extends ApplicationAdapter {
 	public static final String TITLE = "Trabalho";
 	public static final int V_WIDTH = 720;
 	public static final int V_HEIGHT = 480;
-	public static float SCALE = 1f;
+	public static final float SCALE = 1f;
 
 	//public static Engine ashley;
+	// static Engine ashley;
 	public static AssetManager assets;
 
 	private OrthographicCamera camera;
@@ -39,7 +41,7 @@ public class Teste extends ApplicationAdapter {
 		assets.load("img/switch.png", Texture.class);
 
 		camera = new OrthographicCamera();
-		camera.setToOrtho(false, w/SCALE, h/SCALE );
+		camera.setToOrtho(false, w/SCALE, h-10/SCALE );
 
 		batch = new SpriteBatch();
 		batch.setProjectionMatrix(camera.combined);

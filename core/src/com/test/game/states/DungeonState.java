@@ -15,6 +15,8 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.physics.box2d.joints.DistanceJointDef;
 import com.badlogic.gdx.utils.Array;
+import com.test.game.entities.Enemy;
+import com.test.game.entities.Enemy.*;
 import com.test.game.entities.Player;
 import com.test.game.handlers.WorldContactListener;
 import com.test.game.managers.GameStateManager;
@@ -22,17 +24,10 @@ import com.test.game.map.DungeonRoom;
 import com.test.game.utils.Constants;
 import com.test.game.utils.b2d.BodyBuilder;
 
-import com.test.game.utils.Pair;
 import static com.test.game.utils.Constants.PPM;
 import static com.test.game.utils.b2d.BodyBuilder.*;
-import static java.util.Arrays.asList;
 
 import com.test.game.entities.Bullet;
-
-import java.awt.Window;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 
 public class DungeonState extends GameState {
@@ -89,35 +84,46 @@ public class DungeonState extends GameState {
     }
 
     private final Array<Bullet> bullets = new Array<>();
+    private final Array<Enemy> enemies = new Array<>();
 
     public void shoots(float delta){
 
         SHOOT_TIMER += delta;
+        int x = 0, y = 0;
 
-        if(Gdx.input.isKeyPressed(Input.Keys.UP) && SHOOT_TIMER >= player.getShotSpeed()) {
+        if (Gdx.input.isKeyPressed(Input.Keys.UP)){
+            x += 1;
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)){
+            y -= 1;
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)){
+            y += 1;
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.DOWN)){
+            x -= 1;
+        }
+
+
+        if((x !=0 || y != 0) && SHOOT_TIMER >= player.getFirerate() && player.isDiagonal()) {
             SHOOT_TIMER = 0;
             Bullet bala = new Bullet(player);
-            bala.createBullet(world, player.getPosition(), (int)PPM, 0, rays);
+            bala.createBullet(world, player.getPosition(), x, y, rays);
             bullets.add(bala);
         }
-        if(Gdx.input.isKeyPressed(Input.Keys.LEFT) && SHOOT_TIMER >= player.getShotSpeed()) {
+        if(x != 0 && SHOOT_TIMER >= player.getFirerate() && !player.isDiagonal()){
             SHOOT_TIMER = 0;
             Bullet bala = new Bullet(player);
-            bala.createBullet(world, player.getPosition(), 0, -1*(int)PPM, rays);
+            bala.createBullet(world, player.getPosition(), x, 0, rays);
             bullets.add(bala);
         }
-        if(Gdx.input.isKeyPressed(Input.Keys.RIGHT) && SHOOT_TIMER >= player.getShotSpeed()) {
+        if(y != 0 && SHOOT_TIMER >= player.getFirerate() && !player.isDiagonal()){
             SHOOT_TIMER = 0;
             Bullet bala = new Bullet(player);
-            bala.createBullet(world, player.getPosition(), 0, (int)PPM, rays);
+            bala.createBullet(world, player.getPosition(), 0, y, rays);
             bullets.add(bala);
         }
-        if(Gdx.input.isKeyPressed(Input.Keys.DOWN) && SHOOT_TIMER >= player.getShotSpeed()) {
-            SHOOT_TIMER = 0;
-            Bullet bala = new Bullet(player);
-            bala.createBullet(world, player.getPosition(), -1*(int)PPM, 0, rays);
-            bullets.add(bala);
-        }
+
     }
 
 
@@ -133,27 +139,41 @@ public class DungeonState extends GameState {
             createLamp(player.getPosition().scl(32));
         }
 
+        // Shooting
         shoots(delta);
 
-        // Room Transition Check
+        // Room Check
+        if (rooms[(int) pos.x][(int) pos.y].isItSimple() == 0 && !rooms[(int)pos.x][(int)pos.y].isCompleted()) {
+            rooms[(int)pos.x][(int)pos.y].closeDoors(); // Closes the doors
+            Enemy novo = new Enemy();
+            novo.spawnXEnemy(world, 4, target, enemies); // Spawn the enemies
+            rooms[(int) pos.x][(int) pos.y].toggleSimple(); // Sends next step for saving resources
+            rays.setAmbientLight(.4f); // Dims the light
+        }
+
+        // Room Transition
         // Go Right
         if(player.getPosition().x > (target.x + 360) / PPM) {
             target.x += 720;
+            player.getBody().setLinearVelocity(25, 0);
             pos.x += 1;
         }
         // Go Left
         if(player.getPosition().x < (target.x - 360) / PPM) {
             target.x -= 720;
+            player.getBody().setLinearVelocity(-25, 0);
             pos.x -= 1;
         }
         // Go Up
         if(player.getPosition().y > (target.y + 240) / PPM) {
             target.y += 480;
+            player.getBody().setLinearVelocity(0, 25);
             pos.y += 1;
         }
         // Go Down
         if(player.getPosition().y < (target.y - 240) / PPM) {
             target.y -= 480;
+            player.getBody().setLinearVelocity(0, -25);
             pos.y -= 1;
         }
 
@@ -173,7 +193,7 @@ public class DungeonState extends GameState {
         }
         cameraUpdate();
         batch.setProjectionMatrix(camera.combined);
-        rays.setCombinedMatrix(camera.combined.cpy().scl(PPM), player.getPosition().x, player.getPosition().y,720,480);
+        rays.setCombinedMatrix(camera.combined.cpy().scl(PPM), player.getPosition().x, player.getPosition().y,720,500);
     }
 
     private boolean up = true;
@@ -193,6 +213,19 @@ public class DungeonState extends GameState {
         Bullet bala = new Bullet(player);
         bala.destroyBullet(world, bullets);
 
+        for (Enemy enemy:enemies) {
+            if (enemy.getHP() <= 0){
+                world.destroyBody(enemy.getBody());
+                enemies.removeValue(enemy, true);
+            }
+        }
+        if (rooms[(int) pos.x][(int) pos.y].isItSimple() == 1 && enemies.isEmpty()){
+            rooms[(int) pos.x][(int) pos.y].setCompleted();
+            rooms[(int) pos.x][(int) pos.y].openDoors();
+            rooms[(int) pos.x][(int) pos.y].toggleSimple();
+            rays.setAmbientLight(1f);
+        }
+
         batch.setProjectionMatrix(hud.combined);
         batch.begin();
         font.draw(batch, cameraType, 100, 150);
@@ -211,7 +244,7 @@ public class DungeonState extends GameState {
         camera.zoom = 1;
         Vector3 position = camera.position;
         position.x = camera.position.x + (target.x - camera.position.x) * .1f;
-        position.y = camera.position.y + (target.y - camera.position.y) * .1f;
+        position.y = camera.position.y + (target.y - camera.position.y) * .1f - 1f;
         camera.position.set(position);
         cameraType = "Lerp - Room Center";
         camera.update();
@@ -219,61 +252,65 @@ public class DungeonState extends GameState {
 
     private void generateMap(){
         int n_rooms = MathUtils.random(10,12);
-        Array<Pair> Available= new Array<>();
+        Array<Vector2> Available= new Array<>();
         rooms[7][7] = new DungeonRoom(world, target, 7, 7);
-        Available.add(new Pair(8,8));
+        rooms[7][7].setCompleted();
+        Available.add(new Vector2(8,8));
 
         int i = 0;
         while (i < n_rooms){
             int j = MathUtils.random(1, 4), k = MathUtils.random(0, i);
-            int x = Available.get(k).getX(), y = Available.get(k).getY();
+            int x = (int)Available.get(k).x, y = (int)Available.get(k).y;
             switch (j) {
                 case 1:
                     if (y - 1 != 0 && rooms[x - 1][y - 2] == null && rooms[x-1][y-1].amountAttached_rooms() <= 3) {
                         rooms[x - 1][y - 2] = new DungeonRoom(world, target, x - 1, y - 2);
                         rooms[x-1][y-1].setAttached_rooms(1, 1);
                         rooms[x-1][y-2].setAttached_rooms(0, 1);
-                        System.out.println("Baixo " + Available.get(i).getX() + " " + Available.get(i).getY());
+                        System.out.println("Baixo " + Available.get(i).x + " " + Available.get(i).y);
                         i++;
-                        Available.add(new Pair(x, y - 1));
+                        Available.add(new Vector2(x, y - 1));
+                        //rooms[x-1][y-2].createTestLock();
                     }
                 case 2:
                     if (x + 1 != 16 && rooms[x][y - 1] == null && rooms[x-1][y-1].amountAttached_rooms() <= 3) {
                         rooms[x][y - 1] = new DungeonRoom(world, target, x, y - 1);
                         rooms[x-1][y-1].setAttached_rooms(3, 1);
                         rooms[x][y-1].setAttached_rooms(2, 1);
-                        System.out.println("Direita " + Available.get(i).getX() + " " + Available.get(i).getY());
+                        System.out.println("Direita " + Available.get(i).x + " " + Available.get(i).y);
                         i++;
-                        Available.add(new Pair(x + 1, y));
+                        Available.add(new Vector2(x + 1, y));
+                        //rooms[x][y-1].createTestLock();
                     }
                 case 3:
                     if (y + 1 != 16 && rooms[x - 1][y] == null && rooms[x-1][y-1].amountAttached_rooms() <= 3) {
                         rooms[x - 1][y] = new DungeonRoom(world, target, x - 1, y);
                         rooms[x-1][y-1].setAttached_rooms(0, 1);
                         rooms[x-1][y].setAttached_rooms(1, 1);
-                        System.out.println("Cima " + Available.get(i).getX() + " " + Available.get(i).getY());
+                        System.out.println("Cima " + Available.get(i).x + " " + Available.get(i).y);
                         i++;
-                        Available.add(new Pair(x, y + 1));
+                        Available.add(new Vector2(x, y + 1));
+                        //rooms[x-1][y].createTestLock();
                     }
                 case 4:
-                    if (x - 1 != 0 && rooms[x - 2][y - 1] == null && rooms[x-1][y-1].amountAttached_rooms() <= 3) {
+                    if (x - 1 != 0 && rooms[x - 2][y - 1] == null && rooms[x-1][y-1].amountAttached_rooms() <= 3 ) {
                         rooms[x - 2][y - 1] = new DungeonRoom(world, target, x - 2, y - 1);
                         rooms[x-1][y-1].setAttached_rooms(2, 1);
                         rooms[x-2][y-1].setAttached_rooms(3, 1);
-                        System.out.println("Esquerda " + Available.get(i).getX() + " " + Available.get(i).getY());
+                        System.out.println("Esquerda " + Available.get(i).x + " " + Available.get(i).y);
                         i++;
-                        Available.add(new Pair(x - 1, y));
+                        Available.add(new Vector2(x - 1, y));
+                        //rooms[x-2][y-1].createTestLock();
                     }
             }
         }
 
         // Place blocks and select potential special room locations
-        Array<Pair> specialrooms = new Array<>();
+        Array<Vector2> specialrooms = new Array<>();
         i = 0;
-        for (Pair sala: Available) {
-            System.out.println(Arrays.toString(rooms[sala.getX() - 1][sala.getY() - 1].getAttached_rooms()));
-            int[] attached = rooms[sala.getX() - 1][sala.getY() - 1].getAttached_rooms();
-            int x = (int) (target.x - (8 - sala.getX()) * 720), y = (int) (target.y - (8 - sala.getY()) * 480);
+        for (Vector2 sala: Available) {
+            int[] attached = rooms[(int)sala.x - 1][(int)sala.y - 1].getAttached_rooms();
+            int x = (int) (target.x - (8 - sala.x) * 720), y = (int) (target.y - (8 - sala.y) * 480);
             if (attached[3] == 0) {
                 createBox(world, x + 335, y, 50, 76, true, true);
             }
@@ -287,17 +324,17 @@ public class DungeonState extends GameState {
             if (attached[1] == 0) {
                 createBox(world, x, y - 215, 76, 50, true, true);
             }
-            if (rooms[sala.getX() - 1][sala.getY() - 1].amountAttached_rooms() == 1 && sala.getX() != 8 && sala.getY()!= 8){
-                specialrooms.add(new Pair(sala.getX(), sala.getY()));
+            if (rooms[(int)sala.x - 1][(int)sala.y - 1].amountAttached_rooms() == 1 && (int)sala.x != 8 && (int)sala.y != 8){
+                specialrooms.add(new Vector2(sala.x, sala.y));
                 i++;
             }
         }
 
         // Place lamps on the selected special rooms.
-        int j = 0, n_specialrooms = 2, k = MathUtils.random(0, i-n_specialrooms-1);
-        for (Pair sala: specialrooms) {
+        int j = 0, n_specialrooms = 1, k = MathUtils.random(0, i-n_specialrooms);
+        for (Vector2 sala: specialrooms) {
             if (k > n_specialrooms){continue;}
-            int x = (int) (target.x - (8 - sala.getX()) * 720), y = (int) (target.y - (8 - sala.getY()) * 480);
+            int x = (int) (target.x - (8 - sala.x) * 720), y = (int) (target.y - (8 - sala.y) * 480);
             if (j <= n_specialrooms) {
                 // Exemplo de seleção das salas.
                 createLamp(new Vector2(x, y));
@@ -307,14 +344,12 @@ public class DungeonState extends GameState {
     }
 
     // [WIP] Spread the worlds gen in a more dendritic way.
-    private boolean isNextroom(Array<Pair> Available, int dex, int dey){
-        for (Pair sala:Available) {
-            if (sala.getX() == dex + 1 )
-                if (sala.getY() == dey + 1 && rooms[dex][dey] != null && rooms[dex][dey].amountAttached_rooms() > 0 || sala.getY() == dey - 1 && rooms[dex][dey - 2] != null && rooms[dex][dey - 2].amountAttached_rooms() > 0)
-                    return true;
-            else if (sala.getY() == dex - 1)
-                if (sala.getX() == dey - 1 && rooms[dex - 2][dey - 2] != null && rooms[dex - 2][dey - 2].amountAttached_rooms() > 0|| sala.getY() == dey + 1 && rooms[dex - 2][dey] != null && rooms[dex - 2][dey].amountAttached_rooms() > 0)
-                    return true;
+    private boolean isNextroom(int fromdir, int tox, int toy){
+        if ((fromdir == 1 || fromdir == 2) && rooms[(int)tox + 1][(int)toy - 1] == null && rooms[(int)tox][(int)toy - 1] == null){
+            return true;
+        }
+        if ((fromdir == 3 || fromdir == 4) && rooms[(int)tox - 1][(int)toy + 1] == null && rooms[(int)tox - 1][(int)toy] == null){
+            return true;
         }
         return false;
     }

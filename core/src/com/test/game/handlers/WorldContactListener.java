@@ -29,12 +29,29 @@ public class WorldContactListener implements ContactListener {
             }
         }
 
-        if (isBulletContact(fa, fb)){
+        if (isBulletContact(fa, fb) == 1){
             if(fa.getUserData() instanceof Enemy){
                 ((Enemy) fa.getUserData()).takeDamage((Bullet) fb.getUserData());
             }
             else {
                 ((Enemy) fb.getUserData()).takeDamage((Bullet) fa.getUserData());
+            }
+        }
+        if (isBulletContact(fa, fb) == 2){
+            if(fa.getUserData() instanceof Player){
+                ((Player) fa.getUserData()).takeBulletDamage((Bullet) fb.getUserData());
+            }
+            else {
+                ((Player) fb.getUserData()).takeBulletDamage((Bullet) fa.getUserData());
+            }
+        }
+
+        if (isContactDamage(fa, fb)){
+            if(fa.getUserData() instanceof Player){
+                ((Player) fa.getUserData()).takeContactDamage((Enemy) fb.getUserData());
+            }
+            else {
+                ((Player) fb.getUserData()).takeContactDamage((Enemy) fa.getUserData());
             }
         }
     }
@@ -76,9 +93,21 @@ public class WorldContactListener implements ContactListener {
         return false;
     }
 
-    private boolean isBulletContact(Fixture a, Fixture b){
+    private int isBulletContact(Fixture a, Fixture b){
         if (a.getUserData() instanceof Bullet || b.getUserData() instanceof Bullet){
-            if(b.getUserData() instanceof Enemy || a.getUserData() instanceof Enemy){
+            if(b.getUserData() instanceof Enemy || a.getUserData() instanceof Enemy ){
+                return 1;
+            }
+            else if (b.getUserData() instanceof Player || a.getUserData() instanceof Player){
+                return 2;
+            }
+        }
+        return 0;
+    }
+
+    private boolean isContactDamage(Fixture a, Fixture b){
+        if (a.getUserData() instanceof Player || b.getUserData() instanceof Player){
+            if(b.getUserData() instanceof Enemy || a.getUserData() instanceof Enemy ){
                 return true;
             }
         }

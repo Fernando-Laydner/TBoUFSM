@@ -42,8 +42,17 @@ public class Bullet {
         shotspeed = player.getShotSpeed();
     }
 
+    public Bullet(Enemy enemy){
+        b = null;
+        currentTorch = null;
+        bullet = null;
+        distance = enemy.getDistance();
+        atrito = enemy.getAtrito();
+        damage = enemy.getDamage();
+        shotspeed = enemy.getShotSpeed();
+    }
+
     public void createBullet(World world, Vector2 position, int vert, int horiz, RayHandler rays){
-        //b = BodyBuilder.createCircle(world, position.x*PPM + Integer.signum(horiz)*16, position.y*PPM + Integer.signum(vert)*16, 4, false, false, Constants.BIT_BULLET, Constants.BIT_WALL, (short) 1);
         BodyDef bDef = new BodyDef();
         bDef.position.set(position.x + Integer.signum(horiz), position.y + Integer.signum(vert));
         bDef.type = BodyDef.BodyType.DynamicBody;
@@ -65,6 +74,32 @@ public class Bullet {
         b.setLinearVelocity(bullet);
 
         currentTorch = new PointLight(rays, 15, new Color(.4f, .1f, .6f, .7f), 2, 0, 0);
+        currentTorch.setSoftnessLength(0f);
+        currentTorch.attachToBody(b);
+    }
+
+    public void createEnemyBullet(World world, Vector2 position, int vert, int horiz, RayHandler rays){
+        BodyDef bDef = new BodyDef();
+        bDef.position.set(position.x, position.y);
+        bDef.type = BodyDef.BodyType.DynamicBody;
+        bDef.linearDamping = atrito;
+
+        CircleShape shape = new CircleShape();
+        shape.setRadius(4/PPM);
+
+        FixtureDef fd = new FixtureDef();
+        fd.shape = shape;
+        fd.restitution = 0;
+        fd.density = 1f;
+        fd.filter.categoryBits = Constants.BIT_ENEMY_BULLET;
+        fd.filter.maskBits = Constants.BIT_WALL | Constants.BIT_PLAYER;
+        b = world.createBody(bDef);
+        b.createFixture(fd).setUserData(this);
+
+        bullet = new Vector2(-shotspeed*Integer.signum(horiz), -shotspeed*Integer.signum(vert));
+        b.setLinearVelocity(bullet);
+
+        currentTorch = new PointLight(rays, 15, new Color(.6f, .1f, .1f, .7f), 2, 0, 0);
         currentTorch.setSoftnessLength(0f);
         currentTorch.attachToBody(b);
     }

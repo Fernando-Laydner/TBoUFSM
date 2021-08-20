@@ -48,19 +48,27 @@ public class Player {
 
 
     public Player(World world, RayHandler rays) {
-        this.body = createCircle(world, 0, 0, 16);
-        this.body.setLinearDamping(20f);
-        this.body.setAngularDamping(1.3f);
+
+        BodyDef bDef = new BodyDef();
+        bDef.position.set(0, 0);
+        bDef.type = BodyDef.BodyType.DynamicBody;
+        bDef.linearDamping = 20f;
+
+        CircleShape shape = new CircleShape();
+        shape.setRadius(16/PPM);
+
+        FixtureDef fd = new FixtureDef();
+        fd.shape = shape;
+        fd.restitution = 0f;
+        fd.density = 1f;
+        fd.filter.categoryBits = Constants.BIT_PLAYER;
+        fd.filter.maskBits = Constants.BIT_WALL | Constants.BIT_PLAYER | Constants.BIT_ENEMY | Constants.BIT_ENEMY_BULLET | Constants.BIT_SENSOR;
+        body = world.createBody(bDef);
+        body.createFixture(fd).setUserData(this);
 
         light = new PointLight(rays, 200, new Color(1f, 1f, 1f, .9f), 7, 0, 0);
         light.setSoftnessLength(0f);
         light.attachToBody(body);
-
-        Filter f = new Filter();
-        f.groupIndex = -1;
-        f.categoryBits = Constants.BIT_PLAYER;
-        f.maskBits = Constants.BIT_WALL | Constants.BIT_PLAYER;
-        light.setContactFilter(f);
 
         attackComplete = true;
         dirFlip = false;
@@ -75,7 +83,6 @@ public class Player {
         bouncy = 0f;
         shotSpeed = 8;
         firerate = .4f;
-
 
         initAnimations();
     }
@@ -252,6 +259,8 @@ public class Player {
     public boolean isDiagonal(){return diagonal;}
 
     public void toggleDiagonal(){if(diagonal){diagonal = false;}else{ diagonal = true;}}
+    public void takeBulletDamage(Bullet bala){this.hp -= bala.dealDamage();}
+    public void takeContactDamage(Enemy enemy){this.hp -= enemy.getDamage();}
     public void setDistance(float distancia){
         this.distancia = distancia;
     }
@@ -265,30 +274,5 @@ public class Player {
     public void setShotSpeed(float shotSpeed){ this.shotSpeed =  shotSpeed; }
     public void dispose() {
         atlas.dispose();
-    }
-
-    private Body createCircle(World world, float x, float y, float radius) {
-        Body pBody;
-        BodyDef def = new BodyDef();
-
-        def.type = BodyDef.BodyType.DynamicBody;
-
-        def.position.set(x / PPM, y / PPM);
-        def.fixedRotation = true;
-        pBody = world.createBody(def);
-
-        //PolygonShape shape = new PolygonShape();
-        CircleShape shape = new CircleShape();
-        shape.setRadius(radius / PPM);
-
-        FixtureDef fd = new FixtureDef();
-        fd.shape = shape;
-        fd.density = 1.0f;
-        fd.filter.categoryBits = Constants.BIT_PLAYER;
-        fd.filter.maskBits = Constants.BIT_WALL | Constants.BIT_SENSOR | Constants.BIT_ENEMY | Constants.BIT_ENEMY_BULLET;
-        fd.filter.groupIndex = 0;
-        pBody.createFixture(fd).setUserData(this);
-        shape.dispose();
-        return pBody;
     }
 }

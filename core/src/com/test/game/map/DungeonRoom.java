@@ -45,7 +45,7 @@ public class DungeonRoom {
     private void initRoomStructure() {
         Filter f = new Filter();
         f.categoryBits = Constants.BIT_WALL;
-        f.maskBits = Constants.BIT_ENEMY_BULLET | Constants.BIT_PLAYER | Constants.BIT_BULLET | Constants.BIT_ENEMY;
+        f.maskBits = Constants.BIT_ENEMY_BULLET | Constants.BIT_PLAYER | Constants.BIT_BULLET | Constants.BIT_ENEMY | Constants.BIT_SENSOR;
 
         // Bottom Wall
         structure.add(BodyBuilder.createBox(world, center.x + 199, center.y - 228, 323, 24, true, true));

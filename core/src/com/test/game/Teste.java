@@ -1,6 +1,5 @@
 package com.test.game;
 
-//import com.badlogic.ashley.core.Engine;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -21,8 +20,8 @@ public class Teste extends ApplicationAdapter {
 	public static final int V_HEIGHT = 480;
 	public static final float SCALE = 1f;
 
-	//public static Engine ashley;
-	// static Engine ashley;
+	public static boolean dead;
+
 	public static AssetManager assets;
 
 	private OrthographicCamera camera;
@@ -56,7 +55,8 @@ public class Teste extends ApplicationAdapter {
 			gsm.render();
 		}
 
-		if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)) {
+		if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1) || dead) {
+			dead = false;
 			gsm.setState();
 		}
 

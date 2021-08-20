@@ -5,6 +5,7 @@ import box2dLight.RayHandler;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.ai.GdxAI;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -15,8 +16,9 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.physics.box2d.joints.DistanceJointDef;
 import com.badlogic.gdx.utils.Array;
+import com.test.game.Teste;
+import com.test.game.behavior.steering.SteeringEntity;
 import com.test.game.entities.Enemy;
-import com.test.game.entities.Enemy.*;
 import com.test.game.entities.Player;
 import com.test.game.handlers.WorldContactListener;
 import com.test.game.managers.GameStateManager;
@@ -28,6 +30,8 @@ import static com.test.game.utils.Constants.PPM;
 import static com.test.game.utils.b2d.BodyBuilder.*;
 
 import com.test.game.entities.Bullet;
+
+
 
 
 public class DungeonState extends GameState {
@@ -213,12 +217,14 @@ public class DungeonState extends GameState {
         Bullet bala = new Bullet(player);
         bala.destroyBullet(world, bullets);
 
-        for (Enemy enemy:enemies) {
-            if (enemy.getHP() <= 0){
-                world.destroyBody(enemy.getBody());
-                enemies.removeValue(enemy, true);
-            }
+        Enemy dummy = new Enemy();
+        dummy.isDead(world, enemies);
+        dummy.enemiesAI(world, enemies, bullets, player.getPosition(), rays);
+
+        if (player.getHP() <= 0){
+            Teste.dead = true;
         }
+
         if (rooms[(int) pos.x][(int) pos.y].isItSimple() == 1 && enemies.isEmpty()){
             rooms[(int) pos.x][(int) pos.y].setCompleted();
             rooms[(int) pos.x][(int) pos.y].openDoors();
@@ -270,7 +276,7 @@ public class DungeonState extends GameState {
                         System.out.println("Baixo " + Available.get(i).x + " " + Available.get(i).y);
                         i++;
                         Available.add(new Vector2(x, y - 1));
-                        //rooms[x-1][y-2].createTestLock();
+                        rooms[x-1][y-2].createTestLock();
                     }
                 case 2:
                     if (x + 1 != 16 && rooms[x][y - 1] == null && rooms[x-1][y-1].amountAttached_rooms() <= 3) {
@@ -307,22 +313,25 @@ public class DungeonState extends GameState {
 
         // Place blocks and select potential special room locations
         Array<Vector2> specialrooms = new Array<>();
+        Filter f = new Filter();
+        f.categoryBits = Constants.BIT_WALL;
+        f.maskBits = Constants.BIT_ENEMY_BULLET | Constants.BIT_PLAYER | Constants.BIT_BULLET | Constants.BIT_ENEMY | Constants.BIT_SENSOR;
         i = 0;
         for (Vector2 sala: Available) {
             int[] attached = rooms[(int)sala.x - 1][(int)sala.y - 1].getAttached_rooms();
             int x = (int) (target.x - (8 - sala.x) * 720), y = (int) (target.y - (8 - sala.y) * 480);
             if (attached[3] == 0) {
-                createBox(world, x + 335, y, 50, 76, true, true);
+                createBox(world, x + 335, y, 50, 76, true, true).getFixtureList().get(0).setFilterData(f);
             }
             if (attached[2] == 0) {
-                createBox(world, x - 335, y, 50, 76, true, true);
+                createBox(world, x - 335, y, 50, 76, true, true).getFixtureList().get(0).setFilterData(f);
             }
 
             if (attached[0] == 0) {
-                createBox(world, x, y + 215, 76, 50, true, true);
+                createBox(world, x, y + 215, 76, 50, true, true).getFixtureList().get(0).setFilterData(f);
             }
             if (attached[1] == 0) {
-                createBox(world, x, y - 215, 76, 50, true, true);
+                createBox(world, x, y - 215, 76, 50, true, true).getFixtureList().get(0).setFilterData(f);
             }
             if (rooms[(int)sala.x - 1][(int)sala.y - 1].amountAttached_rooms() == 1 && (int)sala.x != 8 && (int)sala.y != 8){
                 specialrooms.add(new Vector2(sala.x, sala.y));

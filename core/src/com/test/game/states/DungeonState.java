@@ -290,7 +290,7 @@ public class DungeonState extends GameState {
 
         // Create the selected special rooms.
         int j = 1, n_specialrooms = 2, k = MathUtils.random(0, i-n_specialrooms);
-        ItemSelect.loadGameItems();
+        int m = ItemSelect.loadGameItems();
         for (Vector2 sala: specialrooms) {
             if (k >= n_specialrooms){continue;}
             int x = (int) (target.x - (8 - sala.x) * 720), y = (int) (target.y - (8 - sala.y) * 480);

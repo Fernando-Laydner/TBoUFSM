@@ -1,8 +1,10 @@
 package com.test.game.handlers;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.physics.box2d.*;
 import com.test.game.entities.Bullet;
 import com.test.game.entities.Enemy;
+import com.test.game.entities.Items;
 import com.test.game.map.FloorSwitch;
 import com.test.game.entities.Player;
 
@@ -54,6 +56,15 @@ public class WorldContactListener implements ContactListener {
                 ((Player) fb.getUserData()).takeContactDamage((Enemy) fa.getUserData());
             }
         }
+
+        if (isItem(fa, fb)){
+            if(fa.getUserData() instanceof Items){
+                ((Items) fa.getUserData()).itemEffect((Player) fb.getUserData());
+            }
+            else {
+                ((Items) fb.getUserData()).itemEffect((Player) fa.getUserData());
+            }
+        }
     }
 
     @Override
@@ -86,6 +97,15 @@ public class WorldContactListener implements ContactListener {
 
     private boolean isSwitchContact(Fixture a, Fixture b) {
         if(a.getUserData() instanceof FloorSwitch || b.getUserData() instanceof FloorSwitch) {
+            if(b.getUserData() instanceof Player || a.getUserData() instanceof Player) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isItem(Fixture a, Fixture b) {
+        if(a.getUserData() instanceof Items || b.getUserData() instanceof Items) {
             if(b.getUserData() instanceof Player || a.getUserData() instanceof Player) {
                 return true;
             }

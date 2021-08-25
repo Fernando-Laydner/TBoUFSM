@@ -18,7 +18,7 @@ public class GameStateManager {
     public GameStateManager(final Teste app) {
         this.app = app;
         this.states = new Stack<GameState>();
-        this.setState(State.DUNGEON); // Mudar aqui dps que tiver um menu ou quando tu tiver fazendo testes E tem que adicionar lá em baixo tbm.
+        this.setState(State.MENU); // Mudar aqui dps que tiver um menu ou quando tu tiver fazendo testes E tem que adicionar lá em baixo tbm.
     }
 
     public Teste application() {
@@ -54,7 +54,7 @@ public class GameStateManager {
     private GameState getState(State state) {
         switch(state) {
             case DUNGEON: return new DungeonState(this);
-            //Tem que adicionar o case do menu aqui em baixo tbm
+            case MENU: return new MenuState(this);
         }
         return null;
     }

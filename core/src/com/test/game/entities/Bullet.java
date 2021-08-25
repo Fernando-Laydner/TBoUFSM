@@ -1,14 +1,11 @@
 package com.test.game.entities;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.CircleShape;
-import com.badlogic.gdx.physics.box2d.Filter;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
-import com.badlogic.gdx.physics.box2d.Shape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.test.game.utils.Constants;
 import com.test.game.utils.Speed;
@@ -52,9 +49,9 @@ public class Bullet {
         shotspeed = enemy.getShotSpeed();
     }
 
-    public void createBullet(World world, Vector2 position, int vert, int horiz, RayHandler rays){
+    public void createBullet(World world, Player player, int vert, int horiz, RayHandler rays){
         BodyDef bDef = new BodyDef();
-        bDef.position.set(position.x + Integer.signum(horiz), position.y + Integer.signum(vert));
+        bDef.position.set(player.getPosition().x + Integer.signum(horiz), player.getPosition().y + Integer.signum(vert));
         bDef.type = BodyDef.BodyType.DynamicBody;
         bDef.linearDamping = atrito;
 
@@ -70,13 +67,13 @@ public class Bullet {
         b = world.createBody(bDef);
         b.createFixture(fd).setUserData(this);
 
-        bullet = new Vector2(shotspeed*Integer.signum(horiz), shotspeed*Integer.signum(vert));
+        bullet = new Vector2(shotspeed*Integer.signum(horiz) + player.getBody().getLinearVelocity().x*2/PPM, shotspeed*Integer.signum(vert) + player.getBody().getLinearVelocity().y*2/PPM);
         b.setLinearVelocity(bullet);
 
         currentTorch = new PointLight(rays, 15, new Color(.4f, .1f, .6f, .7f), 2, 0, 0);
-        currentTorch.setSoftnessLength(0f);
         currentTorch.attachToBody(b);
     }
+
 
     public void createEnemyBullet(World world, Vector2 position, int vert, int horiz, RayHandler rays){
         BodyDef bDef = new BodyDef();
@@ -96,7 +93,7 @@ public class Bullet {
         b = world.createBody(bDef);
         b.createFixture(fd).setUserData(this);
 
-        bullet = new Vector2(-shotspeed*Integer.signum(horiz), -shotspeed*Integer.signum(vert));
+        bullet = new Vector2(-shotspeed*horiz, -shotspeed*vert);
         b.setLinearVelocity(bullet);
 
         currentTorch = new PointLight(rays, 15, new Color(.6f, .1f, .1f, .7f), 2, 0, 0);
@@ -106,17 +103,24 @@ public class Bullet {
 
     public void destroyBullet(World world, Array<Bullet> bullets){
         for (Bullet bala: bullets) {
-                if (Speed.getSpeed(bala.b.getLinearVelocity().x, bala.b.getLinearVelocity().y) < distance) {
-                bala.currentTorch.setDistance(0f);
+            if (Speed.getSpeed(bala.b.getLinearVelocity().x, bala.b.getLinearVelocity().y) < distance) {
+                bala.currentTorch.remove(true);
                 world.destroyBody(bala.b);
-                bala.bullet = null;
                 bullets.removeValue(bala, true);
             }
         }
     }
 
+    public void clearAllBullets(World world, Array<Bullet> bullets){
+        while (!bullets.isEmpty())
+            for (Bullet bala: bullets) {
+                bala.currentTorch.remove(true);
+                world.destroyBody(bala.b);
+                bullets.removeValue(bala, true);
+            }
+    }
 
     public float dealDamage(){
-        return damage;
-    }
+        this.b.setLinearDamping(5000f);
+        return damage; }
 }

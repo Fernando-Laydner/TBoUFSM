@@ -15,8 +15,11 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.physics.box2d.joints.DistanceJointDef;
 import com.badlogic.gdx.utils.Array;
+import com.test.game.Items.ItemSelect;
+import com.test.game.Items.Oculos;
 import com.test.game.Teste;
 import com.test.game.entities.Enemy;
+import com.test.game.entities.Items;
 import com.test.game.entities.Player;
 import com.test.game.handlers.WorldContactListener;
 import com.test.game.managers.GameStateManager;
@@ -40,7 +43,7 @@ public class DungeonState extends GameState {
 
     // Pause
     private final OrthographicCamera paused;
-    private String pauseType = "Paused";
+    private final String pauseType = "Paused";
     private Boolean ispaused = false;
 
     // Camera tracker stuff
@@ -50,12 +53,16 @@ public class DungeonState extends GameState {
     // Player stuff
     private final Vector2 target;
     private PointLight currentTorch;
-    public float SHOOT_TIMER;
 
     // b2d/lock stuff
     private final RayHandler rays;
     private final Box2DDebugRenderer b2dr;
     private final World world;
+    
+    // Track entities
+    private final Array<Bullet> bullets = new Array<>();
+    private final Array<Enemy> enemies = new Array<>();
+    private final Array<Items> itemlist = new Array<>();
 
     public DungeonState(GameStateManager gsm) {
         super(gsm);
@@ -88,52 +95,7 @@ public class DungeonState extends GameState {
 
         // Player init
         player = new Player(world, rays);
-        SHOOT_TIMER = 0;
     }
-
-    private final Array<Bullet> bullets = new Array<>();
-    private final Array<Enemy> enemies = new Array<>();
-
-    public void shoots(float delta){
-
-        SHOOT_TIMER += delta;
-        int x = 0, y = 0;
-
-        if (Gdx.input.isKeyPressed(Input.Keys.UP)){
-            x += 1;
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)){
-            y -= 1;
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)){
-            y += 1;
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.DOWN)){
-            x -= 1;
-        }
-
-
-        if((x !=0 || y != 0) && SHOOT_TIMER >= player.getFirerate() && player.isDiagonal()) {
-            SHOOT_TIMER = 0;
-            Bullet bala = new Bullet(player);
-            bala.createBullet(world, player.getPosition(), x, y, rays);
-            bullets.add(bala);
-        }
-        if(x != 0 && SHOOT_TIMER >= player.getFirerate() && !player.isDiagonal()){
-            SHOOT_TIMER = 0;
-            Bullet bala = new Bullet(player);
-            bala.createBullet(world, player.getPosition(), x, 0, rays);
-            bullets.add(bala);
-        }
-        if(y != 0 && SHOOT_TIMER >= player.getFirerate() && !player.isDiagonal()){
-            SHOOT_TIMER = 0;
-            Bullet bala = new Bullet(player);
-            bala.createBullet(world, player.getPosition(), 0, y, rays);
-            bullets.add(bala);
-        }
-
-    }
-
 
     @Override
     public void update(float delta){
@@ -155,65 +117,29 @@ public class DungeonState extends GameState {
             }
 
             // Shooting
-            shoots(delta);
+            player.shoots(delta, bullets, rays, world);
 
             // Room Check
             if (rooms[(int) pos.x][(int) pos.y].isItSimple() == 0 && !rooms[(int) pos.x][(int) pos.y].isCompleted()) {
-                rooms[(int) pos.x][(int) pos.y].closeDoors(); // Closes the doors
                 Enemy novo = new Enemy();
-                novo.spawnXEnemy(world, 4, target, enemies); // Spawn the enemies
+                if (rooms[(int) pos.x][(int) pos.y].getBoss()){
+                    novo.createBoss(world, target);
+                    enemies.add(novo);
+                }
+                rooms[(int) pos.x][(int) pos.y].closeDoors(); // Closes the doors
+                novo.spawnXEnemy(world, 2, target, enemies); // Spawn the enemies
                 rooms[(int) pos.x][(int) pos.y].toggleSimple(); // Sends next step for saving resources
                 rays.setAmbientLight(.4f); // Dims the light
             }
 
             // Room Transition
-            // Go Right
-            if (player.getPosition().x > (target.x + 360) / PPM) {
-                target.x += 720;
-                player.getBody().setLinearVelocity(25, 0);
-                pos.x += 1;
-            }
-            // Go Left
-            if (player.getPosition().x < (target.x - 360) / PPM) {
-                target.x -= 720;
-                player.getBody().setLinearVelocity(-25, 0);
-                pos.x -= 1;
-            }
-            // Go Up
-            if (player.getPosition().y > (target.y + 240) / PPM) {
-                target.y += 480;
-                player.getBody().setLinearVelocity(0, 25);
-                pos.y += 1;
-            }
-            // Go Down
-            if (player.getPosition().y < (target.y - 240) / PPM) {
-                target.y -= 480;
-                player.getBody().setLinearVelocity(0, -25);
-                pos.y -= 1;
-            }
+            Room_Transition();
 
-            if (currentTorch != null) {
-                currentTorch.setColor(.8f + r, g, .2f, .7f);
-                currentTorch.update();
-            }
-            if (up) {
-                r += .03;
-                g = MathUtils.random(.7f) - .1f;
-                if (r > .9f)
-                    up = !up;
-            } else {
-                r -= .03;
-                if (r < .4f)
-                    up = false;
-            }
             cameraUpdate();
             batch.setProjectionMatrix(camera.combined);
             rays.setCombinedMatrix(camera.combined.cpy().scl(PPM), player.getPosition().x, player.getPosition().y, 720, 500);
         }
     }
-
-    private boolean up = true;
-    private float r = 0.0f, g = 0.0f;
 
     @Override
     public void render() {
@@ -231,9 +157,17 @@ public class DungeonState extends GameState {
             Bullet bala = new Bullet(player);
             bala.destroyBullet(world, bullets);
 
+
+            for(Items temp:itemlist){
+                if (temp.getDestroy()){
+                    temp.removeItem();
+                    itemlist.removeValue(temp, true);
+                }
+            }
+
             Enemy dummy = new Enemy();
             dummy.isDead(world, enemies);
-            dummy.enemiesAI(world, enemies, bullets, player.getPosition(), rays);
+            dummy.AI_Selection(world, enemies, bullets, player.getPosition(), rays);
 
             if (player.getHP() <= 0) {
                 Teste.dead = true;
@@ -296,7 +230,6 @@ public class DungeonState extends GameState {
                         System.out.println("Baixo " + Available.get(i).x + " " + Available.get(i).y);
                         i++;
                         Available.add(new Vector2(x, y - 1));
-                        rooms[x-1][y-2].createTestLock();
                     }
                 case 2:
                     if (x + 1 != 16 && rooms[x][y - 1] == null && rooms[x-1][y-1].amountAttached_rooms() <= 3) {
@@ -306,7 +239,6 @@ public class DungeonState extends GameState {
                         System.out.println("Direita " + Available.get(i).x + " " + Available.get(i).y);
                         i++;
                         Available.add(new Vector2(x + 1, y));
-                        //rooms[x][y-1].createTestLock();
                     }
                 case 3:
                     if (y + 1 != 16 && rooms[x - 1][y] == null && rooms[x-1][y-1].amountAttached_rooms() <= 3) {
@@ -316,7 +248,6 @@ public class DungeonState extends GameState {
                         System.out.println("Cima " + Available.get(i).x + " " + Available.get(i).y);
                         i++;
                         Available.add(new Vector2(x, y + 1));
-                        //rooms[x-1][y].createTestLock();
                     }
                 case 4:
                     if (x - 1 != 0 && rooms[x - 2][y - 1] == null && rooms[x-1][y-1].amountAttached_rooms() <= 3 ) {
@@ -326,7 +257,6 @@ public class DungeonState extends GameState {
                         System.out.println("Esquerda " + Available.get(i).x + " " + Available.get(i).y);
                         i++;
                         Available.add(new Vector2(x - 1, y));
-                        //rooms[x-2][y-1].createTestLock();
                     }
             }
         }
@@ -341,17 +271,16 @@ public class DungeonState extends GameState {
             int[] attached = rooms[(int)sala.x - 1][(int)sala.y - 1].getAttached_rooms();
             int x = (int) (target.x - (8 - sala.x) * 720), y = (int) (target.y - (8 - sala.y) * 480);
             if (attached[3] == 0) {
-                createBox(world, x + 335, y, 50, 76, true, true).getFixtureList().get(0).setFilterData(f);
+                createBox(world, x + 348, y, 50/2, 76, true, true).getFixtureList().get(0).setFilterData(f);
             }
             if (attached[2] == 0) {
-                createBox(world, x - 335, y, 50, 76, true, true).getFixtureList().get(0).setFilterData(f);
+                createBox(world, x - 348, y, 50/2, 76, true, true).getFixtureList().get(0).setFilterData(f);
             }
-
             if (attached[0] == 0) {
-                createBox(world, x, y + 215, 76, 50, true, true).getFixtureList().get(0).setFilterData(f);
+                createBox(world, x, y + 228, 76, 50/2, true, true).getFixtureList().get(0).setFilterData(f);
             }
             if (attached[1] == 0) {
-                createBox(world, x, y - 215, 76, 50, true, true).getFixtureList().get(0).setFilterData(f);
+                createBox(world, x, y - 228, 76, 50/2, true, true).getFixtureList().get(0).setFilterData(f);
             }
             if (rooms[(int)sala.x - 1][(int)sala.y - 1].amountAttached_rooms() == 1 && (int)sala.x != 8 && (int)sala.y != 8){
                 specialrooms.add(new Vector2(sala.x, sala.y));
@@ -359,17 +288,27 @@ public class DungeonState extends GameState {
             }
         }
 
-        // Place lamps on the selected special rooms.
-        int j = 0, n_specialrooms = 1, k = MathUtils.random(0, i-n_specialrooms);
+        // Create the selected special rooms.
+        int j = 1, n_specialrooms = 2, k = MathUtils.random(0, i-n_specialrooms);
+        ItemSelect.loadGameItems();
         for (Vector2 sala: specialrooms) {
-            if (k > n_specialrooms){continue;}
+            if (k >= n_specialrooms){continue;}
             int x = (int) (target.x - (8 - sala.x) * 720), y = (int) (target.y - (8 - sala.y) * 480);
-            if (j <= n_specialrooms) {
-                // Exemplo de seleção das salas.
-                createLamp(new Vector2(x, y));
+            if (j == 1){
+                rooms[(int)sala.x - 1][(int)sala.y - 1].setBoss();
                 j++;
+                continue;
+            }
+            if (j <= n_specialrooms) {
+                Items items = ItemSelect.itemSelect();
+                if(items != null)
+                    items.createItems(world, new Vector2(x, y));
+                itemlist.add(items);
+                j++;
+                rooms[(int)sala.x - 1][(int)sala.y - 1].setCompleted();
             }
         }
+
     }
 
     // [WIP] Spread the worlds gen in a more dendritic way.
@@ -381,6 +320,49 @@ public class DungeonState extends GameState {
             return true;
         }
         return false;
+    }
+
+    private void Room_Transition(){
+        // Go Right
+        if (player.getPosition().x > (target.x + 360) / PPM) {
+            target.x += 720;
+            if (!bullets.isEmpty()){
+                Bullet temp = new Bullet(player);
+                temp.clearAllBullets(world, bullets);
+            }
+            player.getBody().setLinearVelocity(25, 0);
+            pos.x += 1;
+        }
+        // Go Left
+        if (player.getPosition().x < (target.x - 360) / PPM) {
+            target.x -= 720;
+            if (!bullets.isEmpty()){
+                Bullet temp = new Bullet(player);
+                temp.clearAllBullets(world, bullets);
+            }
+            player.getBody().setLinearVelocity(-25, 0);
+            pos.x -= 1;
+        }
+        // Go Up
+        if (player.getPosition().y > (target.y + 240) / PPM) {
+            target.y += 480;
+            if (!bullets.isEmpty()){
+                Bullet temp = new Bullet(player);
+                temp.clearAllBullets(world, bullets);
+            }
+            player.getBody().setLinearVelocity(0, 25);
+            pos.y += 1;
+        }
+        // Go Down
+        if (player.getPosition().y < (target.y - 240) / PPM) {
+            target.y -= 480;
+            if (!bullets.isEmpty()){
+                Bullet temp = new Bullet(player);
+                temp.clearAllBullets(world, bullets);
+            }
+            player.getBody().setLinearVelocity(0, -25);
+            pos.y -= 1;
+        }
     }
 
     private void addTorch(Body b) {

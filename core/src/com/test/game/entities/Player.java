@@ -10,6 +10,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.test.game.utils.Constants;
 import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.utils.Array;
 
 
 import static com.test.game.utils.Constants.PPM;
@@ -36,6 +37,7 @@ public class Player {
     private Animation<TextureRegion> aReturn;
     private boolean dirFlip;
     private boolean attackComplete;
+    public float SHOOT_TIMER;
 
     //Bullets
     private float damage;
@@ -45,6 +47,7 @@ public class Player {
     private float shotSpeed;
     private float bouncy;
     private boolean diagonal;
+
 
 
     public Player(World world, RayHandler rays) {
@@ -74,7 +77,7 @@ public class Player {
         dirFlip = false;
         hp = 100;
         mp = 100;
-
+        SHOOT_TIMER = 0;
 
         //Bullet
         atrito = .6f;
@@ -215,6 +218,44 @@ public class Player {
         if(y != 0 || x != 0) {
             animState += delta;
         }
+    }
+
+    public void shoots(float delta, Array<Bullet> bullets, RayHandler rays, World world){
+        SHOOT_TIMER += delta;
+        int x = 0, y = 0;
+
+        if (Gdx.input.isKeyPressed(Input.Keys.UP)){
+            x += 1;
+        }
+        else if (Gdx.input.isKeyPressed(Input.Keys.DOWN)){
+            x -= 1;
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)){
+            y += 1;
+        }
+        else if (Gdx.input.isKeyPressed(Input.Keys.LEFT)){
+            y -= 1;
+        }
+
+        if((x !=0 || y != 0) && SHOOT_TIMER >= firerate && diagonal) {
+            SHOOT_TIMER = 0;
+            Bullet bala = new Bullet(this);
+            bala.createBullet(world, this, x, y, rays);
+            bullets.add(bala);
+        }
+        if(x != 0 && SHOOT_TIMER >= firerate && !diagonal){
+            SHOOT_TIMER = 0;
+            Bullet bala = new Bullet(this);
+            bala.createBullet(world, this, x, 0, rays);
+            bullets.add(bala);
+        }
+        if(y != 0 && SHOOT_TIMER >= firerate && !diagonal){
+            SHOOT_TIMER = 0;
+            Bullet bala = new Bullet(this);
+            bala.createBullet(world, this, 0, y, rays);
+            bullets.add(bala);
+        }
+
     }
 
     public void render(Batch batch) {

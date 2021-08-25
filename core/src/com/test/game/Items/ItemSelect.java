@@ -12,10 +12,9 @@ public class ItemSelect extends Items {
 
     private static Stack<Integer> items = new Stack<>();
 
-    public static int loadGameItems(){
+    public static void loadGameItems(){
         items.add(1);
         items.add(2);
-        return items.size();
     }
 
     public static Items itemSelect(){

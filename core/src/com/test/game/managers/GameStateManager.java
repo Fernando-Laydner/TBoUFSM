@@ -1,5 +1,6 @@
 package com.test.game.managers;
 
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.test.game.Teste;
 import com.test.game.states.*;
 
@@ -32,6 +33,7 @@ public class GameStateManager {
     public void render() {
         states.peek().render();
     }
+
 
     public void dispose() {
         for(GameState gs : states) {

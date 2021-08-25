@@ -7,6 +7,7 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.test.game.entities.Player;
 import com.test.game.managers.GameStateManager;
 
 public class Teste extends ApplicationAdapter {
@@ -21,6 +22,7 @@ public class Teste extends ApplicationAdapter {
 	public static final float SCALE = 1f;
 
 	public static boolean dead;
+	public static Player player;
 
 	public static AssetManager assets;
 
@@ -34,10 +36,11 @@ public class Teste extends ApplicationAdapter {
 		float w = Gdx.graphics.getWidth();
 		float h = Gdx.graphics.getHeight();
 
-		//ashley = new Engine();
 
 		assets = new AssetManager();
 		assets.load("img/switch.png", Texture.class);
+
+		player = new Player();
 
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, w/SCALE, h-10/SCALE );
@@ -55,8 +58,13 @@ public class Teste extends ApplicationAdapter {
 			gsm.render();
 		}
 
-		if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1) || dead) {
+		if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)){
+			gsm.setState(GameStateManager.State.DUNGEON);
+		}
+
+		if (dead) {
 			dead = false;
+			player = new Player();
 			gsm.setState(GameStateManager.State.DUNGEON);
 		}
 

@@ -49,8 +49,25 @@ public class Player {
     private boolean diagonal;
 
 
+    public Player(){
+        attackComplete = true;
+        dirFlip = false;
+        hp = 100;
+        mp = 100;
+        SHOOT_TIMER = 0;
 
-    public Player(World world, RayHandler rays) {
+        //Bullet
+        atrito = .6f;
+        distancia = 10;
+        damage = 10;
+        bouncy = 0f;
+        shotSpeed = 8;
+        firerate = .4f;
+    }
+
+
+
+    public Player(World world, RayHandler rays, Player player) {
 
         BodyDef bDef = new BodyDef();
         bDef.position.set(0, 0);
@@ -73,19 +90,19 @@ public class Player {
         light.setSoftnessLength(0f);
         light.attachToBody(body);
 
-        attackComplete = true;
-        dirFlip = false;
-        hp = 100;
-        mp = 100;
-        SHOOT_TIMER = 0;
+        this.attackComplete = player.attackComplete;
+        this.dirFlip = player.dirFlip;
+        this.hp = player.hp;
+        this.mp = player.mp;
+        this.SHOOT_TIMER = player.SHOOT_TIMER;
 
-        //Bullet
-        atrito = .6f;
-        distancia = 10;
-        damage = 10;
-        bouncy = 0f;
-        shotSpeed = 8;
-        firerate = .4f;
+        this.atrito = player.atrito;
+        this.distancia = player.distancia;
+        this.damage = player.damage;
+        this.bouncy = player.bouncy;
+        this.shotSpeed = player.shotSpeed;
+        this.firerate = player.firerate;
+        this.diagonal = player.diagonal;
 
         initAnimations();
     }

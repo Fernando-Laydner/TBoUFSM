@@ -234,18 +234,21 @@ public class Enemy {
         return false;
     }
 
-    public boolean shootingCone_AI(World world, Enemy enemy, Array<Bullet> bullets, Vector2 dir, float dist, RayHandler rays){
-        if (enemy.SHOOT_TIMER >= enemy.firerate && dist < 50) {
+    public boolean shooting4x_AI(World world, Enemy enemy, Array<Bullet> bullets, RayHandler rays){
+        if (enemy.SHOOT_TIMER >= enemy.firerate) {
             enemy.SHOOT_TIMER = 0;
             Bullet bala1 = new Bullet(enemy);
-            bala1.createEnemyBullet(world, enemy.getPosition(), (int) ((int) -dir.y*1.5f), (int) ((int) -dir.x*1.5f), rays);
+            bala1.createEnemyBullet(world, enemy.getPosition(), (int) shotSpeed, (int) shotSpeed, rays);
             bullets.add(bala1);
             Bullet bala2 = new Bullet(enemy);
-            bala2.createEnemyBullet(world, enemy.getPosition(), (int) -dir.y, (int) -dir.x, rays);
+            bala2.createEnemyBullet(world, enemy.getPosition(), (int) -shotSpeed, (int) -shotSpeed, rays);
             bullets.add(bala2);
             Bullet bala3 = new Bullet(enemy);
-            bala3.createEnemyBullet(world, enemy.getPosition(), (int) ((int) -dir.y*0.5f), (int) ((int) -dir.x*0.5f), rays);
+            bala3.createEnemyBullet(world, enemy.getPosition(), (int) -shotSpeed, (int) shotSpeed, rays);
             bullets.add(bala3);
+            Bullet bala4 = new Bullet(enemy);
+            bala4.createEnemyBullet(world, enemy.getPosition(), (int) shotSpeed, (int) -shotSpeed, rays);
+            bullets.add(bala4);
             return true;
         }
         enemy.SHOOT_TIMER += 1;
@@ -274,6 +277,9 @@ public class Enemy {
                 roaming_AI(enemy);
                 if (MathUtils.random(100) < 30){
                     shooting8_AI(world, enemy, bullets, rays);
+                }
+                else if (MathUtils.random(100) < 65){
+                    shooting4x_AI(world, enemy, bullets, rays);
                 }
                 shooting4_AI(world, enemy, bullets, rays);
             }

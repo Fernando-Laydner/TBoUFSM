@@ -16,7 +16,6 @@ import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.physics.box2d.joints.DistanceJointDef;
 import com.badlogic.gdx.utils.Array;
 import com.test.game.Items.ItemSelect;
-import com.test.game.Items.Oculos;
 import com.test.game.Teste;
 import com.test.game.entities.Enemy;
 import com.test.game.entities.Items;
@@ -94,7 +93,7 @@ public class DungeonState extends GameState {
         generateMap();
 
         // Player init
-        player = new Player(world, rays);
+        player = new Player(world, rays, Teste.player);
     }
 
     @Override
@@ -109,15 +108,18 @@ public class DungeonState extends GameState {
         if (!ispaused) {
             world.step(1 / 60f, 6, 2);
 
+            // Controller
             player.controller(delta);
+
+            // Shooting
+            player.shoots(delta, bullets, rays, world);
 
             // Create Lamp
             if (Gdx.input.isKeyJustPressed(Input.Keys.Y)) {
                 createLamp(player.getPosition().scl(32));
             }
 
-            // Shooting
-            player.shoots(delta, bullets, rays, world);
+
 
             // Room Check
             if (rooms[(int) pos.x][(int) pos.y].isItSimple() == 0 && !rooms[(int) pos.x][(int) pos.y].isCompleted()) {
@@ -127,7 +129,7 @@ public class DungeonState extends GameState {
                     enemies.add(novo);
                 }
                 rooms[(int) pos.x][(int) pos.y].closeDoors(); // Closes the doors
-                novo.spawnXEnemy(world, 2, target, enemies); // Spawn the enemies
+                novo.spawnXEnemy(world, 0, target, enemies); // Spawn the enemies
                 rooms[(int) pos.x][(int) pos.y].toggleSimple(); // Sends next step for saving resources
                 rays.setAmbientLight(.4f); // Dims the light
             }
@@ -211,7 +213,7 @@ public class DungeonState extends GameState {
     }
 
     private void generateMap(){
-        int n_rooms = MathUtils.random(10,12);
+        int n_rooms = MathUtils.random(7,8);
         Array<Vector2> Available= new Array<>();
         rooms[7][7] = new DungeonRoom(world, target, 7, 7);
         rooms[7][7].setCompleted();
@@ -290,7 +292,7 @@ public class DungeonState extends GameState {
 
         // Create the selected special rooms.
         int j = 1, n_specialrooms = 2, k = MathUtils.random(0, i-n_specialrooms);
-        int m = ItemSelect.loadGameItems();
+        ItemSelect.loadGameItems();
         for (Vector2 sala: specialrooms) {
             if (k >= n_specialrooms){continue;}
             int x = (int) (target.x - (8 - sala.x) * 720), y = (int) (target.y - (8 - sala.y) * 480);

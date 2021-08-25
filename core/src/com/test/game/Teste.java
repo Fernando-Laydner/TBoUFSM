@@ -43,7 +43,7 @@ public class Teste extends ApplicationAdapter {
 		player = new Player();
 
 		camera = new OrthographicCamera();
-		camera.setToOrtho(false, w/SCALE, h-10/SCALE );
+		camera.setToOrtho(false, w/SCALE, h/SCALE );
 
 		batch = new SpriteBatch();
 		batch.setProjectionMatrix(camera.combined);
@@ -62,10 +62,14 @@ public class Teste extends ApplicationAdapter {
 			gsm.setState(GameStateManager.State.DUNGEON);
 		}
 
+		if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_2)){
+			gsm.setState(GameStateManager.State.MENU);
+		}
+
 		if (dead) {
 			dead = false;
 			player = new Player();
-			gsm.setState(GameStateManager.State.DUNGEON);
+			gsm.setState(GameStateManager.State.MENU);
 		}
 
 		if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) Gdx.app.exit();

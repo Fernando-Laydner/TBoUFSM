@@ -74,8 +74,8 @@ public class Player {
         bDef.type = BodyDef.BodyType.DynamicBody;
         bDef.linearDamping = 20f;
 
-        CircleShape shape = new CircleShape();
-        shape.setRadius(16/PPM);
+        PolygonShape shape = new PolygonShape();
+        shape.setAsBox(9/PPM, 16/PPM);
 
         FixtureDef fd = new FixtureDef();
         fd.shape = shape;
@@ -315,6 +315,7 @@ public class Player {
         return body;
     }
     public boolean isDiagonal(){return diagonal;}
+    public TextureRegion getCurrent(){ return current;}
 
     public void toggleDiagonal(){if(diagonal){diagonal = false;}else{ diagonal = true;}}
     public void takeBulletDamage(Bullet bala){this.hp -= bala.dealDamage();}

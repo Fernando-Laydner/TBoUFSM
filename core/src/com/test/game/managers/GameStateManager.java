@@ -1,6 +1,5 @@
 package com.test.game.managers;
 
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.test.game.Teste;
 import com.test.game.states.*;
 
@@ -9,7 +8,7 @@ import java.util.Stack;
 public class GameStateManager {
     private final Teste app;
 
-    private Stack<GameState> states;
+    private final Stack<GameState> states;
 
     public enum State {
         MENU,
@@ -18,8 +17,8 @@ public class GameStateManager {
 
     public GameStateManager(final Teste app) {
         this.app = app;
-        this.states = new Stack<GameState>();
-        this.setState(State.MENU); // Mudar aqui dps que tiver um menu ou quando tu tiver fazendo testes E tem que adicionar lá em baixo tbm.
+        this.states = new Stack<>();
+        this.setState(State.MENU);
     }
 
     public Teste application() {

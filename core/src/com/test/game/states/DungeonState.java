@@ -213,7 +213,7 @@ public class DungeonState extends GameState {
     }
 
     private void generateMap(){
-        int n_rooms = MathUtils.random(7,8);
+        int n_rooms = MathUtils.random(10,12);
         Array<Vector2> Available= new Array<>();
         rooms[7][7] = new DungeonRoom(world, target, 7, 7);
         rooms[7][7].setCompleted();

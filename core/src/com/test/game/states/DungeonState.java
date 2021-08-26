@@ -88,6 +88,8 @@ public class DungeonState extends GameState {
         target = new Vector2(0, 0);
         rooms = new DungeonRoom[16][16];
 
+
+
         // Room init
         pos = new Vector2(7, 7);
         generateMap();
@@ -119,8 +121,6 @@ public class DungeonState extends GameState {
                 createLamp(player.getPosition().scl(32));
             }
 
-
-
             // Room Check
             if (rooms[(int) pos.x][(int) pos.y].isItSimple() == 0 && !rooms[(int) pos.x][(int) pos.y].isCompleted()) {
                 Enemy novo = new Enemy();
@@ -145,9 +145,10 @@ public class DungeonState extends GameState {
 
     @Override
     public void render() {
-
         Gdx.gl.glClearColor(.25f, .25f, .25f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) gsm.setState(GameStateManager.State.MENU);
 
         if (!ispaused) {
             b2dr.render(world, camera.combined.cpy().scl(PPM));
@@ -229,7 +230,7 @@ public class DungeonState extends GameState {
                         rooms[x - 1][y - 2] = new DungeonRoom(world, target, x - 1, y - 2);
                         rooms[x-1][y-1].setAttached_rooms(1, 1);
                         rooms[x-1][y-2].setAttached_rooms(0, 1);
-                        System.out.println("Baixo " + Available.get(i).x + " " + Available.get(i).y);
+                        //System.out.println("Baixo " + Available.get(i).x + " " + Available.get(i).y);
                         i++;
                         Available.add(new Vector2(x, y - 1));
                     }
@@ -238,7 +239,7 @@ public class DungeonState extends GameState {
                         rooms[x][y - 1] = new DungeonRoom(world, target, x, y - 1);
                         rooms[x-1][y-1].setAttached_rooms(3, 1);
                         rooms[x][y-1].setAttached_rooms(2, 1);
-                        System.out.println("Direita " + Available.get(i).x + " " + Available.get(i).y);
+                        //System.out.println("Direita " + Available.get(i).x + " " + Available.get(i).y);
                         i++;
                         Available.add(new Vector2(x + 1, y));
                     }
@@ -247,7 +248,7 @@ public class DungeonState extends GameState {
                         rooms[x - 1][y] = new DungeonRoom(world, target, x - 1, y);
                         rooms[x-1][y-1].setAttached_rooms(0, 1);
                         rooms[x-1][y].setAttached_rooms(1, 1);
-                        System.out.println("Cima " + Available.get(i).x + " " + Available.get(i).y);
+                        //System.out.println("Cima " + Available.get(i).x + " " + Available.get(i).y);
                         i++;
                         Available.add(new Vector2(x, y + 1));
                     }
@@ -256,7 +257,7 @@ public class DungeonState extends GameState {
                         rooms[x - 2][y - 1] = new DungeonRoom(world, target, x - 2, y - 1);
                         rooms[x-1][y-1].setAttached_rooms(2, 1);
                         rooms[x-2][y-1].setAttached_rooms(3, 1);
-                        System.out.println("Esquerda " + Available.get(i).x + " " + Available.get(i).y);
+                        //System.out.println("Esquerda " + Available.get(i).x + " " + Available.get(i).y);
                         i++;
                         Available.add(new Vector2(x - 1, y));
                     }

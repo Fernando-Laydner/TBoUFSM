@@ -71,8 +71,6 @@ public class Teste extends ApplicationAdapter {
 			player = new Player();
 			gsm.setState(GameStateManager.State.MENU);
 		}
-
-		if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) Gdx.app.exit();
 	}
 
 	@Override

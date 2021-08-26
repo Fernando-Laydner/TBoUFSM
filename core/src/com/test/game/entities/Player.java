@@ -72,6 +72,7 @@ public class Player {
         BodyDef bDef = new BodyDef();
         bDef.position.set(0, 0);
         bDef.type = BodyDef.BodyType.DynamicBody;
+        bDef.fixedRotation = true;
         bDef.linearDamping = 20f;
 
         PolygonShape shape = new PolygonShape();

@@ -27,7 +27,7 @@ public class ItemSelect extends Items {
                 items.remove(k);
                 return new Joystick();
         }
-        return null;
+        return new Joystick();
     }
 
     @Override

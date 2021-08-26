@@ -8,6 +8,7 @@ import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
+import com.test.game.Teste;
 import com.test.game.utils.Constants;
 import com.badlogic.gdx.utils.Array;
 import com.test.game.utils.Speed;
@@ -38,14 +39,14 @@ public class Enemy {
 
     public Enemy() {
         body = null;
-        hp = 25;
+        hp = 25 + 5*Teste.player.getSemestre();
         cooldown = 0;
         SPEED = 7;
 
         //Bullet
         atrito = .4f;
         distancia = 15;
-        damage = 10;
+        damage = 10 + 2*Teste.player.getSemestre();
         shotSpeed = 3;
         firerate = 65f;
     }
@@ -54,7 +55,6 @@ public class Enemy {
         this.enemy_type = 1;
         firerate = 150;
         BodyDef bDef = new BodyDef();
-        System.out.println(pos);
         bDef.position.set( (pos.x - MathUtils.random(-100,100))/PPM, (pos.y - MathUtils.random(-100,100))/PPM);
         bDef.type = BodyDef.BodyType.DynamicBody;
         bDef.linearDamping = 0f;

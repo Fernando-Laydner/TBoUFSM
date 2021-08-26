@@ -26,7 +26,6 @@ public class DungeonRoom {
     private boolean completed;
     private int keep_it_simple;
     private Array<Body> doors;
-    private Array<Player> enemies;
     private boolean isBoss;
 
     public DungeonRoom(World world, Vector2 roomCenter, int x, int y) {
@@ -123,9 +122,7 @@ public class DungeonRoom {
     public Vector2 getCenter(){return center; }
     public int isItSimple(){return keep_it_simple; }
     public int amountAttached_rooms(){
-        int total = 0;
-        for (int room:attached_rooms) { total = total + room;}
-        return total;
+        return attached_rooms[0] + attached_rooms[1] + attached_rooms[2] + attached_rooms[3];
     }
     public boolean getBoss(){ return isBoss; }
 

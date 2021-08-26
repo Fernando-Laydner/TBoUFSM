@@ -16,6 +16,7 @@ import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.physics.box2d.joints.DistanceJointDef;
 import com.badlogic.gdx.utils.Array;
 import com.test.game.Items.ItemSelect;
+import com.test.game.Items.SemesterUpgrade;
 import com.test.game.Teste;
 import com.test.game.entities.Enemy;
 import com.test.game.entities.Items;
@@ -38,7 +39,7 @@ public class DungeonState extends GameState {
     // Hud
     private final BitmapFont font;
     private final OrthographicCamera hud;
-    private String cameraType = "Loading...";
+    private String playerStats = "Loading...";
 
     // Pause
     private final OrthographicCamera paused;
@@ -109,9 +110,12 @@ public class DungeonState extends GameState {
         }
         if (!ispaused) {
             world.step(1 / 60f, 6, 2);
+            Teste.player.addTime(delta);
 
             // Controller
             player.controller(delta);
+
+            Teste.player.setHp(player);
 
             // Shooting
             player.shoots(delta, bullets, rays, world);
@@ -129,7 +133,7 @@ public class DungeonState extends GameState {
                     enemies.add(novo);
                 }
                 rooms[(int) pos.x][(int) pos.y].closeDoors(); // Closes the doors
-                novo.spawnXEnemy(world, 0, target, enemies); // Spawn the enemies
+                novo.spawnXEnemy(world, 2+Teste.player.getSemestre(), target, enemies); // Spawn the enemies
                 rooms[(int) pos.x][(int) pos.y].toggleSimple(); // Sends next step for saving resources
                 rays.setAmbientLight(.4f); // Dims the light
             }
@@ -156,7 +160,6 @@ public class DungeonState extends GameState {
             rays.updateAndRender();
             player.render(batch);
 
-
             Bullet bala = new Bullet(player);
             bala.destroyBullet(world, bullets);
 
@@ -173,13 +176,22 @@ public class DungeonState extends GameState {
             dummy.AI_Selection(world, enemies, bullets, player.getPosition(), rays);
 
             if (player.getHP() <= 0) {
-                Teste.dead = true;
+                Teste.player.toggleKill();
             }
 
             if (rooms[(int) pos.x][(int) pos.y].isItSimple() == 1 && enemies.isEmpty()) {
                 rooms[(int) pos.x][(int) pos.y].setCompleted();
                 rooms[(int) pos.x][(int) pos.y].openDoors();
                 rooms[(int) pos.x][(int) pos.y].toggleSimple();
+                if (rooms[(int) pos.x][(int) pos.y].getBoss()){
+                    Items items = ItemSelect.itemSelect();
+                    if(items != null) {
+                        items.createItems(world, new Vector2(rooms[(int) pos.x][(int) pos.y].getCenter().x, rooms[(int) pos.x][(int) pos.y].getCenter().y - 4 * PPM));
+                        itemlist.add(items);
+                    }
+                    Items semestre = new SemesterUpgrade();
+                    semestre.createItems(world, new Vector2(rooms[(int) pos.x][(int) pos.y].getCenter().x, rooms[(int) pos.x][(int) pos.y].getCenter().y + 4 * PPM));
+                }
                 rays.setAmbientLight(1f);
             }
         }
@@ -191,8 +203,10 @@ public class DungeonState extends GameState {
         }
         batch.setProjectionMatrix(hud.combined);
         batch.begin();
-        font.draw(batch, cameraType, 100, 150);
-        font.draw(batch, "Room: " + (pos.x + 1) + " " + (pos.y + 1), 100, 130);
+        font.draw(batch, "Timer:  "+ timer((int)Teste.player.getTime()) + " ", 320, 460);
+        font.draw(batch, playerStats, 100, 150);
+        playerStats = "HP: " + player.getHP() + "\nSemestre: " + player.getSemestre();
+        font.draw(batch, "Room: " + (pos.x + 1) + " " + (pos.y + 1), 100, 110);
         batch.end();
     }
 
@@ -209,12 +223,20 @@ public class DungeonState extends GameState {
         position.x = camera.position.x + (target.x - camera.position.x) * .1f;
         position.y = camera.position.y + (target.y - camera.position.y) * .1f - 1f;
         camera.position.set(position);
-        cameraType = "Lerp - Room Center";
         camera.update();
     }
 
+    private String timer(int totalSecs){
+
+        int hours = totalSecs / 3600;
+        int minutes = (totalSecs % 3600) / 60;
+        int seconds = totalSecs % 60;
+
+        return String.format("%02d:%02d:%02d", hours, minutes, seconds);
+    }
+
     private void generateMap(){
-        int n_rooms = MathUtils.random(10,12);
+        int n_rooms = MathUtils.random(9 + Teste.player.getSemestre(),11 + Teste.player.getSemestre());
         Array<Vector2> Available= new Array<>();
         rooms[7][7] = new DungeonRoom(world, target, 7, 7);
         rooms[7][7].setCompleted();
@@ -287,22 +309,24 @@ public class DungeonState extends GameState {
             }
             if (rooms[(int)sala.x - 1][(int)sala.y - 1].amountAttached_rooms() == 1 && (int)sala.x != 8 && (int)sala.y != 8){
                 specialrooms.add(new Vector2(sala.x, sala.y));
-                i++;
             }
         }
 
+        System.out.println(specialrooms.size);
         // Create the selected special rooms.
-        int j = 1, n_specialrooms = 2, k = MathUtils.random(0, i-n_specialrooms);
+        int j = 1, n_specialrooms = 2, k = MathUtils.random(0, specialrooms.size -n_specialrooms-1);
         ItemSelect.loadGameItems();
         for (Vector2 sala: specialrooms) {
-            if (k >= n_specialrooms){continue;}
+            if (k > n_specialrooms){k--; continue;}
             int x = (int) (target.x - (8 - sala.x) * 720), y = (int) (target.y - (8 - sala.y) * 480);
             if (j == 1){
                 rooms[(int)sala.x - 1][(int)sala.y - 1].setBoss();
+                //System.out.println("Sala Boss: [" +sala.x + "][" + sala.y + "]");
                 j++;
                 continue;
             }
             if (j <= n_specialrooms) {
+                //System.out.println("Sala especial: [" +sala.x + "][" + sala.y + "]");
                 Items items = ItemSelect.itemSelect();
                 if(items != null)
                     items.createItems(world, new Vector2(x, y));

@@ -21,8 +21,8 @@ public class Teste extends ApplicationAdapter {
 	public static final int V_HEIGHT = 480;
 	public static final float SCALE = 1f;
 
-	public static boolean dead;
 	public static Player player;
+	public static int control;
 
 	public static AssetManager assets;
 
@@ -48,6 +48,7 @@ public class Teste extends ApplicationAdapter {
 		batch = new SpriteBatch();
 		batch.setProjectionMatrix(camera.combined);
 
+		control = 1;
 		gsm = new GameStateManager(this);
 	}
 
@@ -66,8 +67,19 @@ public class Teste extends ApplicationAdapter {
 			gsm.setState(GameStateManager.State.MENU);
 		}
 
-		if (dead) {
-			dead = false;
+		if (player.getSemestre() != control){
+			if (player.getSemestre() <= 1) {
+				control += 1;
+				gsm.setState(GameStateManager.State.DUNGEON);
+			}
+			else{
+				control += 1;
+				gsm.setState(GameStateManager.State.MENU);
+			}
+		}
+
+		if (player.isAlive()) {
+			player.toggleKill();
 			player = new Player();
 			gsm.setState(GameStateManager.State.MENU);
 		}

@@ -18,12 +18,13 @@ import static com.test.game.utils.Constants.PPM;
 public class Player {
 
     private TextureAtlas atlas;
-    private float hp, mp;
+    private float hp;
     private float SPEED = 700; //425
     private TextureRegion current;
-
+    private int semestre;
     private Body body;
     private PointLight light;
+    private float time;
 
     // Animations
     private float animState, attackAnim;
@@ -37,7 +38,6 @@ public class Player {
     private Animation<TextureRegion> aReturn;
     private boolean dirFlip;
     private boolean attackComplete;
-    public float SHOOT_TIMER;
 
     //Bullets
     private float damage;
@@ -47,19 +47,23 @@ public class Player {
     private float shotSpeed;
     private float bouncy;
     private boolean diagonal;
+    private boolean dead;
+    public float SHOOT_TIMER;
 
 
     public Player(){
         attackComplete = true;
         dirFlip = false;
+        dead = false;
         hp = 100;
-        mp = 100;
         SHOOT_TIMER = 0;
+        semestre = 1;
+        time = 0;
 
         //Bullet
         atrito = .6f;
         distancia = 10;
-        damage = 10;
+        damage = 10000;
         bouncy = 0f;
         shotSpeed = 8;
         firerate = .4f;
@@ -94,7 +98,7 @@ public class Player {
         this.attackComplete = player.attackComplete;
         this.dirFlip = player.dirFlip;
         this.hp = player.hp;
-        this.mp = player.mp;
+        this.semestre = player.semestre;
         this.SHOOT_TIMER = player.SHOOT_TIMER;
 
         this.atrito = player.atrito;
@@ -288,9 +292,6 @@ public class Player {
     public float getHP() {
         return hp;
     }
-    public float getMP() {
-        return mp;
-    }
     public Vector2 getPosition() {
         return body.getPosition();
     }
@@ -316,11 +317,16 @@ public class Player {
         return body;
     }
     public boolean isDiagonal(){return diagonal;}
+    public boolean isAlive(){return dead;}
     public TextureRegion getCurrent(){ return current;}
+    public int getSemestre(){return semestre;}
+    public float getTime(){return time;}
 
+    public void changeSemestre(){semestre += 1;}
     public void toggleDiagonal(){if(diagonal){diagonal = false;}else{ diagonal = true;}}
     public void takeBulletDamage(Bullet bala){this.hp -= bala.dealDamage();}
     public void takeContactDamage(Enemy enemy){this.hp -= enemy.getDamage();}
+    public void setHp(Player player){this.hp = player.hp;}
     public void setDistance(float distancia){
         this.distancia = distancia;
     }
@@ -330,8 +336,10 @@ public class Player {
     public void setDamage(float damage){
         this.damage = damage;
     }
+    public void addTime(float delta){time += delta;}
     public void setBouncy(float bouncy){ this.bouncy = bouncy; }
     public void setShotSpeed(float shotSpeed){ this.shotSpeed =  shotSpeed; }
+    public void toggleKill(){ if (dead) {dead = false; } else { dead = true;} }
     public void dispose() {
         atlas.dispose();
     }

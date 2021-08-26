@@ -3,10 +3,9 @@ package com.test.game.states;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.utils.Timer;
+import com.test.game.Items.ItemSelect;
 import com.test.game.Teste;
 import com.test.game.entities.Player;
 import com.test.game.managers.GameStateManager;
@@ -23,10 +22,6 @@ public class MenuState extends GameState{
 	private final Texture exit2;
 	private int selected;
 
-	// Hud
-	//private final BitmapFont font;
-	//private final OrthographicCamera hud;
-
 	private final float delay = 0.2f;
 
 
@@ -39,12 +34,6 @@ public class MenuState extends GameState{
 		playBtn2 = new Texture("img/playBtn2.png");
 		exit1 = new Texture("img/exit1.png");
 		exit2 = new Texture("img/exit2.png");
-
-		// HUD init
-		//font = new BitmapFont();
-		//font.setColor(.65f, .15f, .1f, 1f);
-		//hud = new OrthographicCamera();
-		//hud.setToOrtho(false, 720, 480);
 
 		camera.position.set(Gdx.graphics.getWidth()/2,Gdx.graphics.getHeight()/2, 0);
 	}
@@ -64,9 +53,15 @@ public class MenuState extends GameState{
 
 		//batch.setProjectionMatrix(hud.combined);
 		batch.begin();
-		//if (Teste.control >= 8){
-			//font.draw(batch, "Parabéns passar do 8° Semestre!", 300, 50 );
-		//}
+		if (Teste.control > 8){
+			if (Gdx.input.isKeyPressed(Input.Keys.ENTER)) {
+				// So que não, vai estudar vagabundo.
+			}
+			else{
+				// Coloca uma imagem falando algo do tipo: Parabéns você terminou o seu ensino superior, segure ENTER para entrar no seu mestrado.
+			}
+
+		}
 		batch.draw(background, 0, 0, Teste.V_WIDTH, Teste.V_HEIGHT+40);
 		batch.draw(playBtn2,Teste.V_WIDTH / 2 - playBtn2.getWidth()/2, Teste.V_HEIGHT / 3);
 		batch.draw(exit2, Teste.V_WIDTH/2 - exit1.getWidth()/2, Teste.V_HEIGHT/3 - exit2.getHeight() - 15);
@@ -84,6 +79,7 @@ public class MenuState extends GameState{
 					Teste.control = 1;
 				}
 			}, delay);
+			ItemSelect.loadGameItems();
 			Teste.player = new Player();
 			gsm.setState(GameStateManager.State.DUNGEON);
 		}

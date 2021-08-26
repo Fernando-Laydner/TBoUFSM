@@ -8,7 +8,6 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Filter;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
-import com.test.game.entities.Player;
 import com.test.game.utils.Constants;
 import com.test.game.utils.b2d.BodyBuilder;
 
@@ -31,11 +30,11 @@ public class DungeonRoom {
     public DungeonRoom(World world, Vector2 roomCenter, int x, int y) {
         this.world = world;
         this.center = new Vector2(roomCenter.x - (7-x)*720, roomCenter.y - (7-y)*480);
-        this.structure = new Array<Body>();
+        this.structure = new Array<>();
         this.completed = false;
         this.keep_it_simple = 0;
         this.doors = new Array<>();
-        this.switches = new Array<FloorSwitch>();
+        this.switches = new Array<>();
         this.x = x;
         this.y = y;
 

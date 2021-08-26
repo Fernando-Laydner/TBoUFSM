@@ -19,7 +19,7 @@ public class Player {
 
     private TextureAtlas atlas;
     private float hp;
-    private float SPEED = 700; //425
+    private float SPEED = 425;
     private TextureRegion current;
     private int semestre;
     private Body body;
@@ -36,8 +36,6 @@ public class Player {
     private Animation<TextureRegion> aUp;
     private Animation<TextureRegion> aDown;
     private Animation<TextureRegion> aReturn;
-    private boolean dirFlip;
-    private boolean attackComplete;
 
     //Bullets
     private float damage;
@@ -52,8 +50,6 @@ public class Player {
 
 
     public Player(){
-        attackComplete = true;
-        dirFlip = false;
         dead = false;
         hp = 100;
         SHOOT_TIMER = 0;
@@ -63,7 +59,7 @@ public class Player {
         //Bullet
         atrito = .6f;
         distancia = 10;
-        damage = 10000;
+        damage = 10;
         bouncy = 0f;
         shotSpeed = 8;
         firerate = .4f;
@@ -72,7 +68,6 @@ public class Player {
 
 
     public Player(World world, RayHandler rays, Player player) {
-
         BodyDef bDef = new BodyDef();
         bDef.position.set(0, 0);
         bDef.type = BodyDef.BodyType.DynamicBody;
@@ -95,8 +90,6 @@ public class Player {
         light.setSoftnessLength(0f);
         light.attachToBody(body);
 
-        this.attackComplete = player.attackComplete;
-        this.dirFlip = player.dirFlip;
         this.hp = player.hp;
         this.semestre = player.semestre;
         this.SHOOT_TIMER = player.SHOOT_TIMER;
@@ -157,76 +150,21 @@ public class Player {
         // Player Controller
         float x = 0, y = 0;
 
-        if(Gdx.input.isKeyJustPressed((Input.Keys.SPACE))) {
-            attackComplete = false;
-            attackAnim = 0;
-        }
-
-        boolean heldAttack = false;
-        if(Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
-            heldAttack = true;
-        }
-
         if(Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isTouched()) {
             x -= 1;
             current = wLeft.getKeyFrame(animState, true);
-
-            if(!heldAttack) {
-                aReturn = wLeft;
-                dirFlip = false;
-                if(current.isFlipX())
-                    current.flip(true, false);
-            }
         }
         if(Gdx.input.isKeyPressed((Input.Keys.D))) {
             x += 1;
             current = wLeft.getKeyFrame(animState, true);
-
-            if(!heldAttack) {
-                aReturn = wLeft;
-                dirFlip = true;
-                if(!current.isFlipX())
-                    current.flip(true, false);
-            }
         }
         if(Gdx.input.isKeyPressed((Input.Keys.W))) {
             y += 1;
             current = wUp.getKeyFrame(animState, true);
-            if(!heldAttack)
-                aReturn = wUp;
         }
         if(Gdx.input.isKeyPressed((Input.Keys.S))) {
             y -= 1;
             current = wDown.getKeyFrame(animState, true);
-            if(!heldAttack)
-                aReturn = wDown;
-        }
-
-        if(!attackComplete) {
-            x /= 3;
-            y /= 3;
-            if(aReturn == wDown)
-                current = aDown.getKeyFrame(attackAnim, false);
-            else if(aReturn == wUp)
-                current = aUp.getKeyFrame(attackAnim, false);
-            else if(aReturn == wLeft) {
-                if(!dirFlip) {
-                    current = aLeft.getKeyFrame(attackAnim, false);
-                    if(current.isFlipX()) {
-                        current.flip(true, false);
-                    }
-                } else {
-                    current = aLeft.getKeyFrame(attackAnim, false);
-                    if(!current.isFlipX()) {
-                        current.flip(true, false);
-                    }
-                }
-            }
-            attackAnim += delta;
-            if(aDown.isAnimationFinished(attackAnim) && !heldAttack) {
-                attackComplete = true;
-                current = aReturn.getKeyFrame(animState);
-            }
         }
 
         // Dampening check

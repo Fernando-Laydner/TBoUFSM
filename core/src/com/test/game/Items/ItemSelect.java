@@ -27,7 +27,7 @@ public class ItemSelect extends Items {
                 items.remove(k);
                 return new Joystick();
         }
-        return new Joystick();
+        return new Joystick(); // Mudar isso aqui só por vida, caso acabe a pool dos itens.
     }
 
     @Override

@@ -7,6 +7,7 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.test.game.Items.ItemSelect;
 import com.test.game.entities.Player;
 import com.test.game.managers.GameStateManager;
 
@@ -60,6 +61,7 @@ public class Teste extends ApplicationAdapter {
 		}
 
 		if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)){
+			ItemSelect.loadGameItems();
 			gsm.setState(GameStateManager.State.DUNGEON);
 		}
 
@@ -68,12 +70,11 @@ public class Teste extends ApplicationAdapter {
 		}
 
 		if (player.getSemestre() != control){
-			if (player.getSemestre() <= 1) {
+			if (player.getSemestre() <= 8) {
 				control += 1;
 				gsm.setState(GameStateManager.State.DUNGEON);
 			}
 			else{
-				control += 1;
 				gsm.setState(GameStateManager.State.MENU);
 			}
 		}
@@ -81,6 +82,7 @@ public class Teste extends ApplicationAdapter {
 		if (player.isAlive()) {
 			player.toggleKill();
 			player = new Player();
+			ItemSelect.loadGameItems();
 			gsm.setState(GameStateManager.State.MENU);
 		}
 	}

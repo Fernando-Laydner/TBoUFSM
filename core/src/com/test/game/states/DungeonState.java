@@ -315,7 +315,6 @@ public class DungeonState extends GameState {
         System.out.println(specialrooms.size);
         // Create the selected special rooms.
         int j = 1, n_specialrooms = 2, k = MathUtils.random(0, specialrooms.size -n_specialrooms-1);
-        ItemSelect.loadGameItems();
         for (Vector2 sala: specialrooms) {
             if (k > n_specialrooms){k--; continue;}
             int x = (int) (target.x - (8 - sala.x) * 720), y = (int) (target.y - (8 - sala.y) * 480);
@@ -328,9 +327,13 @@ public class DungeonState extends GameState {
             if (j <= n_specialrooms) {
                 //System.out.println("Sala especial: [" +sala.x + "][" + sala.y + "]");
                 Items items = ItemSelect.itemSelect();
-                if(items != null)
+                if(items != null) {
                     items.createItems(world, new Vector2(x, y));
-                itemlist.add(items);
+                    itemlist.add(items);
+                }
+                else{
+                    System.out.println("Erro ao criar os itens.");
+                }
                 j++;
                 rooms[(int)sala.x - 1][(int)sala.y - 1].setCompleted();
             }

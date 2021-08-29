@@ -1,5 +1,6 @@
 package com.test.game.entities;
 
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -14,7 +15,7 @@ public abstract class Items {
 
     protected Body body;
     protected World temp;
-    protected int[] IDs;
+    public int ID;
     protected boolean destroy = false;
     protected String name;
 
@@ -38,6 +39,8 @@ public abstract class Items {
         body.createFixture(fd).setUserData(this);
         shape.dispose();
     }
+
+    public abstract void render(Batch batch);
     public void removeItem(){
         temp.destroyBody(body);
     }

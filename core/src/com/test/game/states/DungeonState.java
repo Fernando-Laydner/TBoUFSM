@@ -8,6 +8,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
@@ -133,7 +134,7 @@ public class DungeonState extends GameState {
                     enemies.add(novo);
                 }
                 rooms[(int) pos.x][(int) pos.y].closeDoors(); // Closes the doors
-                novo.spawnXEnemy(world, 2+Teste.player.getSemestre(), target, enemies); // Spawn the enemies
+                novo.spawnXEnemy(world, 0, target, enemies); // Spawn the enemies
                 rooms[(int) pos.x][(int) pos.y].toggleSimple(); // Sends next step for saving resources
                 rays.setAmbientLight(.4f); // Dims the light
             }
@@ -159,6 +160,10 @@ public class DungeonState extends GameState {
             rooms[(int) pos.x][(int) pos.y].render(batch);
             rays.updateAndRender();
             player.render(batch);
+
+            for (Items item: itemlist) {
+                item.render(batch);
+            }
 
             Bullet bala = new Bullet(player);
             bala.destroyBullet(world, bullets);
@@ -314,13 +319,13 @@ public class DungeonState extends GameState {
 
         System.out.println(specialrooms.size);
         // Create the selected special rooms.
-        int j = 1, n_specialrooms = 2, k = MathUtils.random(0, specialrooms.size -n_specialrooms-1);
+        int j = 1, n_specialrooms = 2;
         for (Vector2 sala: specialrooms) {
-            if (k > n_specialrooms){k--; continue;}
             int x = (int) (target.x - (8 - sala.x) * 720), y = (int) (target.y - (8 - sala.y) * 480);
             if (j == 1){
                 rooms[(int)sala.x - 1][(int)sala.y - 1].setBoss();
                 //System.out.println("Sala Boss: [" +sala.x + "][" + sala.y + "]");
+                rooms[(int)sala.x - 1][(int)sala.y - 1].setIsSpecial(j);
                 j++;
                 continue;
             }
@@ -334,8 +339,9 @@ public class DungeonState extends GameState {
                 else{
                     System.out.println("Erro ao criar os itens.");
                 }
-                j++;
                 rooms[(int)sala.x - 1][(int)sala.y - 1].setCompleted();
+                rooms[(int)sala.x - 1][(int)sala.y - 1].setIsSpecial(j);
+                j++;
             }
         }
 

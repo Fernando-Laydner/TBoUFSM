@@ -26,6 +26,7 @@ public class DungeonRoom {
     private int keep_it_simple;
     private Array<Body> doors;
     private boolean isBoss;
+    private int isSpecial;
 
     public DungeonRoom(World world, Vector2 roomCenter, int x, int y) {
         this.world = world;
@@ -37,6 +38,7 @@ public class DungeonRoom {
         this.switches = new Array<>();
         this.x = x;
         this.y = y;
+        this.isSpecial = 0;
 
         initRoomStructure();
     }
@@ -124,7 +126,9 @@ public class DungeonRoom {
         return attached_rooms[0] + attached_rooms[1] + attached_rooms[2] + attached_rooms[3];
     }
     public boolean getBoss(){ return isBoss; }
+    public int getIsSpecial(){ return isSpecial;}
 
+    public void setIsSpecial(int valor){ isSpecial = valor;}
     public void setCompleted(){
         completed = true;
     }

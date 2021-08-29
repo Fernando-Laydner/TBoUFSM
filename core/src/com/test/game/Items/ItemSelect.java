@@ -1,9 +1,9 @@
 package com.test.game.Items;
 
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.MathUtils;
 import com.test.game.entities.Items;
 import com.test.game.entities.Player;
-
 
 import java.util.Stack;
 
@@ -14,7 +14,8 @@ public class ItemSelect extends Items {
 
     public static void loadGameItems(){
         items.add(1);
-        items.add(2);
+        items.add(1);
+        items.add(1);
     }
 
     public static Items itemSelect(){
@@ -26,8 +27,16 @@ public class ItemSelect extends Items {
             case 2:
                 items.remove(k);
                 return new Joystick();
+            case 3:
+                items.remove(k);
+                //return new
         }
         return new Joystick(); // Mudar isso aqui só por vida, caso acabe a pool dos itens.
+    }
+
+    @Override
+    public void render(Batch batch) {
+
     }
 
     @Override

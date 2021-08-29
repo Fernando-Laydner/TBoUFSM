@@ -66,7 +66,7 @@ public class Enemy {
         FixtureDef fd = new FixtureDef();
         fd.shape = shape;
         fd.restitution = 0f;
-        fd.density = 1f;
+        //fd.density = 1f;
         fd.filter.categoryBits = Constants.BIT_ENEMY;
         fd.filter.maskBits = Constants.BIT_WALL | Constants.BIT_BULLET | Constants.BIT_PLAYER | Constants.BIT_ENEMY;
         body = world.createBody(bDef);
@@ -81,7 +81,7 @@ public class Enemy {
         System.out.println(pos);
         bDef.position.set( (pos.x - MathUtils.random(-100,100))/PPM, (pos.y - MathUtils.random(-100,100))/PPM);
         bDef.type = BodyDef.BodyType.DynamicBody;
-        bDef.linearDamping = 6f;
+        bDef.linearDamping = .0f;
         bDef.fixedRotation = true;
 
         CircleShape shape = new CircleShape();
@@ -90,7 +90,7 @@ public class Enemy {
         FixtureDef fd = new FixtureDef();
         fd.shape = shape;
         fd.restitution = 0f;
-        fd.density = 1f;
+        //fd.density = 1f;
         fd.filter.categoryBits = Constants.BIT_ENEMY;
         fd.filter.maskBits = Constants.BIT_WALL | Constants.BIT_BULLET | Constants.BIT_PLAYER | Constants.BIT_ENEMY;
         body = world.createBody(bDef);

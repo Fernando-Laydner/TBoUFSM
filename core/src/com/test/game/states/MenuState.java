@@ -120,6 +120,9 @@ public class MenuState extends GameState{
 	public void dispose() {
 		background.dispose();
 		playBtn.dispose();
+		playBtn2.dispose();
+		exit1.dispose();
+		exit2.dispose();
 	}
 
 }

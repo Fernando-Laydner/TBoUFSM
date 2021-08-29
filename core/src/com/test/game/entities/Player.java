@@ -27,7 +27,7 @@ public class Player {
     private float time;
 
     // Animations
-    private float animState, attackAnim;
+    private float animState;
     private TextureRegion frame1, frame2, frame3;
     private Animation<TextureRegion> wLeft;
     private Animation<TextureRegion> wUp;
@@ -35,7 +35,7 @@ public class Player {
     private Animation<TextureRegion> aLeft;
     private Animation<TextureRegion> aUp;
     private Animation<TextureRegion> aDown;
-    private Animation<TextureRegion> aReturn;
+    private boolean dirFlip;
 
     //Bullets
     private float damage;
@@ -50,6 +50,7 @@ public class Player {
 
 
     public Player(){
+    	dirFlip = false;
         dead = false;
         hp = 100;
         SHOOT_TIMER = 0;
@@ -90,6 +91,7 @@ public class Player {
         light.setSoftnessLength(0f);
         light.attachToBody(body);
 
+        this.dirFlip = player.dirFlip;
         this.hp = player.hp;
         this.semestre = player.semestre;
         this.SHOOT_TIMER = player.SHOOT_TIMER;
@@ -142,7 +144,6 @@ public class Player {
         aLeft = new Animation<>(.045f, frame1, frame2, frame3);
         aLeft.setPlayMode(Animation.PlayMode.NORMAL);
 
-        aReturn = wDown;
         current = wDown.getKeyFrame(animState);
     }
 
@@ -150,13 +151,21 @@ public class Player {
         // Player Controller
         float x = 0, y = 0;
 
-        if(Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isTouched()) {
+        if(Gdx.input.isKeyPressed(Input.Keys.A)) {
             x -= 1;
             current = wLeft.getKeyFrame(animState, true);
+            
+            dirFlip = false;
+            if(current.isFlipX())
+                current.flip(true, false);
         }
         if(Gdx.input.isKeyPressed((Input.Keys.D))) {
             x += 1;
             current = wLeft.getKeyFrame(animState, true);
+            dirFlip = true;
+            
+            if(!current.isFlipX())
+                current.flip(true, false);
         }
         if(Gdx.input.isKeyPressed((Input.Keys.W))) {
             y += 1;

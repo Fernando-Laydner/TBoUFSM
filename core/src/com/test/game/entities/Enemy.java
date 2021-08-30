@@ -130,10 +130,10 @@ public class Enemy {
     }
 
     public void createBoss(World world, Vector2 pos){
-        this.enemy_type = 3;
+        this.enemy_type = MathUtils.random(3,5);
         this.SHOOT_TIMER = 0;
         this.hp = 150;
-        this.SPEED = 16;
+        this.SPEED = enemy_type*4;
         BodyDef bDef = new BodyDef();
         System.out.println(pos);
         bDef.position.set( (pos.x - MathUtils.random(-100,100))/PPM, (pos.y - MathUtils.random(-100,100))/PPM);
@@ -173,7 +173,6 @@ public class Enemy {
         if (enemy.cooldown > 600){
             enemy.cooldown = 0;
             enemy.body.setLinearDamping(0f);
-            //enemy.body.setLinearVelocity(enemy.body.getLinearVelocity().x*-1, enemy.body.getLinearVelocity().y*-1);
             enemy.getBody().applyForce(SPEED*MathUtils.random(-10,10), SPEED*MathUtils.random(-10,10), MathUtils.random(-1,1), MathUtils.random(-1,1), true);
         }
     }
@@ -297,12 +296,12 @@ public class Enemy {
             enemy.cooldown += MathUtils.random(15);
             float dist = Speed.getSpeed(dir.x, dir.y);
             if (enemy.enemy_type == 1){
-                if(!following_AI(enemy, dir, dist, 20, 0));
+                if(!following_AI(enemy, dir, dist, 20, 0))
                     roaming_AI(enemy);
             }
             else if (enemy.enemy_type == 2){
-                if(!shooting_AI(world, enemy, bullets, dir, dist, rays) && !following_AI(enemy, dir, dist, 17, 8));
-                roaming_AI(enemy);
+                if(!shooting_AI(world, enemy, bullets, dir, dist, rays) && !following_AI(enemy, dir, dist, 17, 8))
+                    roaming_AI(enemy);
             }
             else if (enemy.enemy_type == 3) {
                 roaming_AI(enemy);
@@ -313,6 +312,9 @@ public class Enemy {
                     shooting4x_AI(world, enemy, bullets, rays);
                 }
                 shooting4_AI(world, enemy, bullets, rays);
+            }
+            else if (enemy.enemy_type == 4) {
+                following_AI(enemy, dir, dist, 800, 12);
             }
         }
     }
@@ -326,21 +328,34 @@ public class Enemy {
         }
     }
 
-    public void render(Batch batch) 
+    public void render(Batch batch)
     {
     	 batch.begin();
-    	 
-         batch.draw(ini_bug, this.body.getPosition().x*PPM, this.body.getPosition().y*PPM);
-         batch.draw(ini_polvo, this.body.getPosition().x*PPM, this.body.getPosition().y*PPM);
-         batch.draw(ini_C, this.body.getPosition().x*PPM, this.body.getPosition().y*PPM);
+    	 if (this.enemy_type == 1){
+             batch.draw(ini_bug, this.body.getPosition().x*PPM - 20, this.body.getPosition().y*PPM - 20);
+         }
+    	 if (this.enemy_type == 2){
+             batch.draw(ini_polvo, this.body.getPosition().x*PPM - 20, this.body.getPosition().y*PPM - 20);
+         }
+    	 if (this.enemy_type == 3){
+             batch.draw(ini_prolog, this.body.getPosition().x*PPM - 20, this.body.getPosition().y*PPM - 20);
+         }
+        if (this.enemy_type == 4){
+            batch.draw(ini_C, this.body.getPosition().x*PPM - 20, this.body.getPosition().y*PPM - 20);
+        }
+        if (this.enemy_type == 5){
+            batch.draw(ini_java, this.body.getPosition().x*PPM - 20, this.body.getPosition().y*PPM - 20);;
+        }
+         /*
+
          batch.draw(ini_php, this.body.getPosition().x*PPM, this.body.getPosition().y*PPM);
          batch.draw(ini_pyton, this.body.getPosition().x*PPM, this.body.getPosition().y*PPM);
          batch.draw(ini_codeblocks, this.body.getPosition().x*PPM, this.body.getPosition().y*PPM);
          batch.draw(ini_linux, this.body.getPosition().x*PPM, this.body.getPosition().y*PPM);
          batch.draw(ini_haskell, this.body.getPosition().x*PPM, this.body.getPosition().y*PPM);
          batch.draw(ini_prolog, this.body.getPosition().x*PPM, this.body.getPosition().y*PPM);
-         batch.draw(ini_java, this.body.getPosition().x*PPM, this.body.getPosition().y*PPM);
 
+          */
          batch.end();
  
     }

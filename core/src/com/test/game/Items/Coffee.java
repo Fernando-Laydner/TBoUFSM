@@ -28,8 +28,10 @@ public class Coffee extends Items {
     @Override
     public void itemEffect(Player player) {
         name = "Coffee";
-        player.setBouncy(1f);
-        Teste.player.setBouncy(1f);
+        player.addShotSpeed(2);
+        player.addFirerate(0.2f);
+        Teste.player.addShotSpeed(2);
+        Teste.player.addFirerate(0.2f);
         destroy = true;
     }
 }

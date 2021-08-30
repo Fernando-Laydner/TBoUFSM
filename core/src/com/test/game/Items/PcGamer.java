@@ -28,8 +28,12 @@ public class PcGamer extends Items {
     @Override
     public void itemEffect(Player player) {
         name = "PcGamer";
-        player.setBouncy(1f);
-        Teste.player.setBouncy(1f);
+        player.addHp(25);
+        Teste.player.addHp(25);
+        player.addDamage(5);
+        Teste.player.addDamage(5);
+        player.addFirerate(0.2f);
+        Teste.player.addFirerate(0.2f);
         destroy = true;
     }
 }

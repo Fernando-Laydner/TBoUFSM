@@ -85,12 +85,12 @@ public class DungeonState extends GameState {
         
         b2dr = new Box2DDebugRenderer();
 
+        // Player init
+        player = new Player(world, rays, Teste.player);
+
         // Camera init stuff
         target = new Vector2(0, 0);
         rooms = new DungeonRoom[16][16];
-
-        // Player init
-        player = new Player(world, rays, Teste.player);
 
         // Room init
         pos = new Vector2(7, 7);
@@ -131,7 +131,7 @@ public class DungeonState extends GameState {
                     enemies.add(novo);
                 }
                 rooms[(int) pos.x][(int) pos.y].closeDoors(); // Closes the doors
-                novo.spawnXEnemy(world, 0, target, enemies); // Spawn the enemies
+                novo.spawnXEnemy(world, 2+player.getSemestre(), target, enemies); // Spawn the enemies
                 rooms[(int) pos.x][(int) pos.y].toggleSimple(); // Sends next step for saving resources
                 rays.setAmbientLight(.4f); // Dims the light
             }
@@ -154,13 +154,24 @@ public class DungeonState extends GameState {
 
         if (!ispaused) 
         {
+
+            rooms[(int) pos.x][(int) pos.y].render(batch);
+            if (rooms[(int)pos.x+1][(int)pos.y] != null){
+                rooms[(int) pos.x+1][(int) pos.y].render(batch);
+            }
+            if (rooms[(int)pos.x-1][(int)pos.y] != null){
+                rooms[(int) pos.x-1][(int) pos.y].render(batch);
+            }
+            if (rooms[(int)pos.x][(int)pos.y+1] != null){
+                rooms[(int) pos.x][(int) pos.y+1].render(batch);
+            }
+            if (rooms[(int)pos.x][(int)pos.y-1] != null){
+                rooms[(int) pos.x][(int) pos.y-1].render(batch);
+            }
             b2dr.render(world, camera.combined.cpy().scl(PPM));
             rays.updateAndRender();
-            rooms[(int) pos.x][(int) pos.y].render(batch);
             
-            
-            for(Enemy enemy: enemies)
-            {
+            for(Enemy enemy: enemies) {
             	enemy.render(batch);
             }
 
@@ -306,16 +317,16 @@ public class DungeonState extends GameState {
             int[] attached = rooms[(int)sala.x - 1][(int)sala.y - 1].getAttached_rooms();
             int x = (int) (target.x - (8 - sala.x) * 720), y = (int) (target.y - (8 - sala.y) * 480);
             if (attached[3] == 0) {
-                createBox(world, x + 348, y, 50/2, 76, true, true).getFixtureList().get(0).setFilterData(f);
+                createBox(world, x + 348, y, 24, 76, true, true).getFixtureList().get(0).setFilterData(f);
             }
             if (attached[2] == 0) {
-                createBox(world, x - 348, y, 50/2, 76, true, true).getFixtureList().get(0).setFilterData(f);
+                createBox(world, x - 348, y, 24, 76, true, true).getFixtureList().get(0).setFilterData(f);
             }
             if (attached[0] == 0) {
-                createBox(world, x, y + 228, 76, 50/2, true, true).getFixtureList().get(0).setFilterData(f);
+                createBox(world, x, y + 228, 76, 35, true, true).getFixtureList().get(0).setFilterData(f);
             }
             if (attached[1] == 0) {
-                createBox(world, x, y - 228, 76, 50/2, true, true).getFixtureList().get(0).setFilterData(f);
+                createBox(world, x, y - 228, 76, 24, true, true).getFixtureList().get(0).setFilterData(f);
             }
             if (rooms[(int)sala.x - 1][(int)sala.y - 1].amountAttached_rooms() == 1 && (int)sala.x != 8 && (int)sala.y != 8){
                 specialrooms.add(new Vector2(sala.x, sala.y));

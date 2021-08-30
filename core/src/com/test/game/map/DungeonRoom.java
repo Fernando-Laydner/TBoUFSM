@@ -32,15 +32,27 @@ public class DungeonRoom {
     private boolean isBoss;
     private int isSpecial;
     
-    private Texture door_open;
-    private Texture door_close;
+    private Texture door_open_top;
+    private Texture door_open_bottom;
+    private Texture door_open_right;
+    private Texture door_open_left;
+    private Texture wall_close_top;
+    private Texture wall_close_bottom;
+    private Texture wall_close_right;
+    private Texture wall_close_left;
     
     private Texture semestre;
     
     public DungeonRoom(World world, Vector2 roomCenter, int x, int y) 
     {
-    	door_open = new Texture(Gdx.files.internal("img\\door_open.png"));
-    	door_close = new Texture(Gdx.files.internal("img\\door_close.png"));
+    	door_open_top = new Texture(Gdx.files.internal("img\\door_open_top.png"));
+        door_open_bottom = new Texture(Gdx.files.internal("img\\door_open_bottom.png"));
+        door_open_left = new Texture(Gdx.files.internal("img\\door_open_left.png"));
+        door_open_right = new Texture(Gdx.files.internal("img\\door_open_right.png"));
+        wall_close_top = new Texture(Gdx.files.internal("img\\wall_close_top.png"));
+        wall_close_bottom = new Texture(Gdx.files.internal("img\\wall_close_bottom.png"));
+        wall_close_right = new Texture(Gdx.files.internal("img\\wall_close_right.png"));
+        wall_close_left = new Texture(Gdx.files.internal("img\\wall_close_left.png"));
     	
         this.world = world;
         this.center = new Vector2(roomCenter.x - (7-x)*720, roomCenter.y - (7-y)*480);
@@ -85,8 +97,8 @@ public class DungeonRoom {
         structure.add(BodyBuilder.createBox(world, center.x - 199, center.y - 228, 323, 24, true, true));
 
         // Top Wall
-        structure.add(BodyBuilder.createBox(world, center.x + 199, center.y + 228, 323, 24, true, true));
-        structure.add(BodyBuilder.createBox(world, center.x - 199, center.y + 228, 323, 24, true, true));
+        structure.add(BodyBuilder.createBox(world, center.x + 199, center.y + 228, 323, 35, true, true));
+        structure.add(BodyBuilder.createBox(world, center.x - 199, center.y + 228, 323, 35, true, true));
 
         // Right wall
         structure.add(BodyBuilder.createBox(world, center.x + 348, center.y + 127, 24, 178, true, true));
@@ -113,17 +125,31 @@ public class DungeonRoom {
             fs.draw(batch);
         }
         batch.begin();
-        System.out.println(this.x);
-        batch.draw(semestre , -360,-240);//-360, -240
-        if(!doors.isEmpty()) {
-            if(attached_rooms[0] == 1) {
-                //batch(door_close,this.doors.getPosition().x, this.doors.getPosition().y);
+        batch.draw(semestre , this.center.x-360,this.center.y-240);//-360, -240
+        if(attached_rooms[0] == 0) {
+            batch.draw(wall_close_top, this.center.x - 45, this.center.y + 183);
+        }
+        if(attached_rooms[1] == 0) {
+            batch.draw(wall_close_bottom,this.center.x - 45, this.center.y - 239);
+        }
+        if(attached_rooms[2] == 0) {
+            batch.draw(wall_close_left,this.center.x - 360, this.center.y - 42);
+        }
+        if(attached_rooms[3] == 0) {
+            batch.draw(wall_close_right,this.center.x + 320, this.center.y - 42);
+        }
+        if(this.keep_it_simple == 1){
+            if(attached_rooms[0] == 1) { // cima
+                batch.draw(door_open_top,this.center.x - 39, this.center.y + 195);
             }
-            if(attached_rooms[0] == 2) {
-                //batch(door_close,this.doors.getPosition().x, this.doors.getPosition().y);
+            if(attached_rooms[1] == 1) { // baixo
+                batch.draw(door_open_bottom,this.center.x - 39, this.center.y - 245);
             }
-            if(attached_rooms[0] == 3) {
-                //batch(door_close,this.doors.getPosition().x, this.doors.getPosition().y);
+            if(attached_rooms[2] == 1) { // esquerda
+                batch.draw(door_open_left,this.center.x - 362, this.center.y - 42);
+            }
+            if(attached_rooms[3] == 1) { // direita
+                batch.draw(door_open_right,this.center.x + 335, this.center.y - 42);
             }
         }
         batch.end();
@@ -169,8 +195,14 @@ public class DungeonRoom {
     public void dispose() 
     {
 		semestre.dispose();
-		door_open.dispose();
-		door_close.dispose();
+		door_open_top.dispose();
+        door_open_bottom.dispose();
+        door_open_right.dispose();
+        door_open_left.dispose();
+        wall_close_left.dispose();
+        wall_close_right.dispose();
+        wall_close_top.dispose();
+        wall_close_bottom.dispose();
 	}
     public boolean isCompleted(){ return completed;}
     public int[] getAttached_rooms() { return attached_rooms; }

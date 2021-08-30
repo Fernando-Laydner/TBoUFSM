@@ -273,19 +273,21 @@ public class Player {
     public void toggleDiagonal(){if(diagonal){diagonal = false;}else{ diagonal = true;}}
     public void takeBulletDamage(Bullet bala){this.hp -= bala.dealDamage();}
     public void takeContactDamage(Enemy enemy){this.hp -= enemy.getDamage();}
+    public void addHp(float hp){this.hp += hp;}
     public void setHp(Player player){this.hp = player.hp;}
-    public void setDistance(float distancia){
-        this.distancia = distancia;
+    public void addDistance(float distancia){
+        this.distancia += distancia;
     }
-    public void setAtrito(float atrito){
-        this.atrito = atrito;
+    public void addAtrito(float atrito){
+        this.atrito += atrito;
     }
-    public void setDamage(float damage){
-        this.damage = damage;
+    public void addDamage(float damage){
+        this.damage += damage;
     }
+    public void addFirerate(float firerate) {this.firerate += firerate;}
     public void addTime(float delta){time += delta;}
     public void setBouncy(float bouncy){ this.bouncy = bouncy; }
-    public void setShotSpeed(float shotSpeed){ this.shotSpeed =  shotSpeed; }
+    public void addShotSpeed(float shotSpeed){ this.shotSpeed +=  shotSpeed; }
     public void toggleKill(){ if (dead) {dead = false; } else { dead = true;} }
     public void dispose() {
         atlas.dispose();

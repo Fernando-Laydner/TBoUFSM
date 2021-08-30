@@ -8,7 +8,6 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
@@ -155,12 +154,20 @@ public class DungeonState extends GameState {
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) gsm.setState(GameStateManager.State.MENU);
 
-        if (!ispaused) {
+        if (!ispaused) 
+        {
             b2dr.render(world, camera.combined.cpy().scl(PPM));
             rooms[(int) pos.x][(int) pos.y].render(batch);
             rays.updateAndRender();
-            player.render(batch);
+            
+            
+            for(Enemy enemy: enemies)
+            {
+            	enemy.render(batch);
+            }
 
+            player.render(batch);
+            
             for (Items item: itemlist) {
                 item.render(batch);
             }

@@ -12,13 +12,16 @@ public class ItemSelect extends Items {
 
     private static Stack<Integer> items = new Stack<>();
 
-    public static void loadGameItems(){
+    public static void loadGameItems()
+    {
+    	items.add(1);
         items.add(1);
         items.add(1);
         items.add(1);
     }
 
-    public static Items itemSelect(){
+    public static Items itemSelect()
+    {
         int k = MathUtils.random(0, items.size()-1);
         switch (items.get(k)) {
             case 1:
@@ -29,7 +32,11 @@ public class ItemSelect extends Items {
                 return new Joystick();
             case 3:
                 items.remove(k);
-                //return new
+                return new Coffee();
+            case 4:
+                items.remove(k);
+                return new PcGamer();
+           
         }
         return new Joystick(); // Mudar isso aqui só por vida, caso acabe a pool dos itens.
     }

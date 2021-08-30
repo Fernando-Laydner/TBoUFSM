@@ -19,7 +19,7 @@ public class Player {
 
     private TextureAtlas atlas;
     private float hp;
-    private float SPEED = 425;
+    private float SPEED = 700;//425
     private TextureRegion current;
     private int semestre;
     private Body body;

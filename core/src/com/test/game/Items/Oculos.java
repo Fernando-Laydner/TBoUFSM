@@ -11,17 +11,17 @@ import static com.test.game.utils.Constants.PPM;
 
 public class Oculos extends Items {
     // Imagem do item
-    private final int ID = 1;
+  
     private Texture tex;
 
     public Oculos(){
-        tex = new Texture(Gdx.files.internal("img\\13.png"));
+        tex = new Texture(Gdx.files.internal("img\\Oculos.png"));
     }
 
     @Override
     public void render(Batch batch) {
         batch.begin();
-        batch.draw(tex, this.body.getPosition().x*PPM, this.body.getPosition().y*PPM);
+        batch.draw(tex, this.body.getPosition().x*PPM-19, this.body.getPosition().y*PPM-20);
         batch.end();
     }
 

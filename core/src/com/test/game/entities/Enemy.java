@@ -1,5 +1,8 @@
 package com.test.game.entities;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
@@ -36,6 +39,19 @@ public class Enemy {
 
     private int SHOOT_TIMER;
 
+    //inimigos
+    
+    private Texture ini_bug;
+    private Texture ini_polvo;
+    private Texture ini_C;
+    private Texture ini_php;
+    private Texture ini_pyton;
+    private Texture ini_codeblocks;
+    private Texture ini_linux;
+    private Texture ini_haskell;
+    private Texture ini_prolog;
+    private Texture ini_java;
+    
 
     public Enemy() {
         body = null;
@@ -49,9 +65,24 @@ public class Enemy {
         damage = 10 + 2*Teste.player.getSemestre();
         shotSpeed = 3;
         firerate = 65f;
+        
+        //Inimigos
+        
+        ini_bug = new Texture(Gdx.files.internal("img\\bug.png"));
+        ini_polvo= new Texture(Gdx.files.internal("img\\polvo.png"));
+        ini_C = new Texture(Gdx.files.internal("img\\linguagemC.png"));
+        ini_php = new Texture(Gdx.files.internal("img\\php.png"));
+        ini_pyton = new Texture(Gdx.files.internal("img\\pyton.png"));
+        ini_codeblocks = new Texture(Gdx.files.internal("img\\codeblocks.png"));
+        ini_linux = new Texture(Gdx.files.internal("img\\linux.png"));
+        ini_haskell = new Texture(Gdx.files.internal("img\\haskell.png"));
+        ini_prolog = new Texture(Gdx.files.internal("img\\prolog.png"));
+        ini_java = new Texture(Gdx.files.internal("img\\java.png"));
     }
 
     public void createEnemy(World world, Vector2 pos){
+    	
+    	
         this.enemy_type = 1;
         firerate = 150;
         BodyDef bDef = new BodyDef();
@@ -295,6 +326,24 @@ public class Enemy {
         }
     }
 
+    public void render(Batch batch) 
+    {
+    	 batch.begin();
+    	 
+         batch.draw(ini_bug, this.body.getPosition().x*PPM, this.body.getPosition().y*PPM);
+         batch.draw(ini_polvo, this.body.getPosition().x*PPM, this.body.getPosition().y*PPM);
+         batch.draw(ini_C, this.body.getPosition().x*PPM, this.body.getPosition().y*PPM);
+         batch.draw(ini_php, this.body.getPosition().x*PPM, this.body.getPosition().y*PPM);
+         batch.draw(ini_pyton, this.body.getPosition().x*PPM, this.body.getPosition().y*PPM);
+         batch.draw(ini_codeblocks, this.body.getPosition().x*PPM, this.body.getPosition().y*PPM);
+         batch.draw(ini_linux, this.body.getPosition().x*PPM, this.body.getPosition().y*PPM);
+         batch.draw(ini_haskell, this.body.getPosition().x*PPM, this.body.getPosition().y*PPM);
+         batch.draw(ini_prolog, this.body.getPosition().x*PPM, this.body.getPosition().y*PPM);
+         batch.draw(ini_java, this.body.getPosition().x*PPM, this.body.getPosition().y*PPM);
+
+         batch.end();
+ 
+    }
     public void takeDamage(Bullet bala){
         hp -= bala.dealDamage();
     }
@@ -302,7 +351,6 @@ public class Enemy {
     public float getHP() {
         return hp;
     }
-
     public Vector2 getPosition() {
         return body.getPosition();
     }

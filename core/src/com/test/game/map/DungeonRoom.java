@@ -14,6 +14,7 @@ import com.test.game.Teste;
 import com.test.game.utils.Constants;
 import com.test.game.utils.b2d.BodyBuilder;
 
+import static com.test.game.utils.Constants.PPM;
 import static com.test.game.utils.b2d.BodyBuilder.createBox;
 
 public class DungeonRoom {
@@ -34,14 +35,7 @@ public class DungeonRoom {
     private Texture door_open;
     private Texture door_close;
     
-    private Texture semestre_1;
-    private Texture semestre_2;
-    private Texture semestre_3;
-    private Texture semestre_4;
-    private Texture semestre_5;
-    private Texture semestre_6;
-    private Texture semestre_7;
-    private Texture semestre_8;
+    private Texture semestre;
     
     public DungeonRoom(World world, Vector2 roomCenter, int x, int y) 
     {
@@ -62,21 +56,21 @@ public class DungeonRoom {
         switch(Teste.player.getSemestre()) 
         {
         	case 1:
-        	semestre_1 = new Texture(Gdx.files.internal("img\\semestre_1.png"));
+        	    semestre = new Texture(Gdx.files.internal("img\\semestre_1.png"));
 	        case 2:
-          	semestre_2 = new Texture(Gdx.files.internal("img\\semestre_2.png"));
+          	    semestre = new Texture(Gdx.files.internal("img\\semestre_2.png"));
 		    /*case 3:
-		    semestre_3 = new Texture(Gdx.files.internal("img\\semestre_3.png"));
+		        semestre = new Texture(Gdx.files.internal("img\\semestre_3.png"));
 		    case 4:
-			semestre_4 = new Texture(Gdx.files.internal("img\\semestre_4.png"));
+			    semestre = new Texture(Gdx.files.internal("img\\semestre_4.png"));
 			case 5:
-		    semestre_5 = new Texture(Gdx.files.internal("img\\semestre_5.png"));
+		        semestre = new Texture(Gdx.files.internal("img\\semestre_5.png"));
 			case 6:
-			semestre_6 = new Texture(Gdx.files.internal("img\\semestre_6.png"));
+			    semestre = new Texture(Gdx.files.internal("img\\semestre_6.png"));
 			case 7:
-		    semestre_7 = new Texture(Gdx.files.internal("img\\semestre_7.png"));
+		        semestre = new Texture(Gdx.files.internal("img\\semestre_7.png"));
 			case 8:
-	        semestre_8 = new Texture(Gdx.files.internal("img\\semestre_8.png"));*/
+	            semestre = new Texture(Gdx.files.internal("img\\semestre_8.png"));*/
         }
         initRoomStructure();
     }
@@ -117,25 +111,22 @@ public class DungeonRoom {
     public void render(Batch batch) {
         for(FloorSwitch fs : switches) {
             fs.draw(batch);
-            batch.begin();
-            if(attached_rooms[0] == 0)
-            {
-            	//batch(door_close,this.doors.getPosition().x, this.doors.getPosition().y);
-            }
-            if(!doors.isEmpty()) {
-            	if(attached_rooms[0] == 1) {
-            		//batch(door_close,this.doors.getPosition().x, this.doors.getPosition().y);
-            	}
-            		if(attached_rooms[0] == 2) {
-            			//batch(door_close,this.doors.getPosition().x, this.doors.getPosition().y);
-            		}
-            			if(attached_rooms[0] == 3) {
-            				//batch(door_close,this.doors.getPosition().x, this.doors.getPosition().y);
-            			}
-            }
-            
-            batch.end();
         }
+        batch.begin();
+        System.out.println(this.x);
+        batch.draw(semestre , -360,-240);
+        if(!doors.isEmpty()) {
+            if(attached_rooms[0] == 1) {
+                //batch(door_close,this.doors.getPosition().x, this.doors.getPosition().y);
+            }
+            if(attached_rooms[0] == 2) {
+                //batch(door_close,this.doors.getPosition().x, this.doors.getPosition().y);
+            }
+            if(attached_rooms[0] == 3) {
+                //batch(door_close,this.doors.getPosition().x, this.doors.getPosition().y);
+            }
+        }
+        batch.end();
     }
 
     public void closeDoors(){

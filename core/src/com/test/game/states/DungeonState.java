@@ -89,14 +89,12 @@ public class DungeonState extends GameState {
         target = new Vector2(0, 0);
         rooms = new DungeonRoom[16][16];
 
-
+        // Player init
+        player = new Player(world, rays, Teste.player);
 
         // Room init
         pos = new Vector2(7, 7);
         generateMap();
-
-        // Player init
-        player = new Player(world, rays, Teste.player);
     }
 
     @Override
@@ -157,8 +155,8 @@ public class DungeonState extends GameState {
         if (!ispaused) 
         {
             b2dr.render(world, camera.combined.cpy().scl(PPM));
-            rooms[(int) pos.x][(int) pos.y].render(batch);
             rays.updateAndRender();
+            rooms[(int) pos.x][(int) pos.y].render(batch);
             
             
             for(Enemy enemy: enemies)

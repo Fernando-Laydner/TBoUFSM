@@ -70,7 +70,7 @@ public class Enemy {
         
         ini_bug = new Texture(Gdx.files.internal("img\\bug.png"));
         ini_polvo= new Texture(Gdx.files.internal("img\\polvo.png"));
-        ini_C = new Texture(Gdx.files.internal("img\\linguagemC.png"));
+        ini_C = new Texture(Gdx.files.internal("img\\C.png"));
         ini_php = new Texture(Gdx.files.internal("img\\php.png"));
         ini_pyton = new Texture(Gdx.files.internal("img\\pyton.png"));
         ini_codeblocks = new Texture(Gdx.files.internal("img\\codeblocks.png"));
@@ -372,6 +372,18 @@ public class Enemy {
     public Body getBody(){
         return body;
     }
-
+    public void dispose() 
+    {
+		ini_bug.dispose();
+		ini_C.dispose();
+		ini_java.dispose();
+		ini_linux.dispose();
+		ini_php.dispose();
+		ini_pyton.dispose();
+		ini_haskell.dispose();
+		ini_prolog.dispose();
+		ini_polvo.dispose();
+		ini_codeblocks.dispose();
+	}
 }
 

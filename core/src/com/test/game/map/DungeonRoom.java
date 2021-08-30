@@ -59,7 +59,7 @@ public class DungeonRoom {
         	    semestre = new Texture(Gdx.files.internal("img\\semestre_1.png"));
 	        case 2:
           	    semestre = new Texture(Gdx.files.internal("img\\semestre_2.png"));
-		    /*case 3:
+		    case 3:
 		        semestre = new Texture(Gdx.files.internal("img\\semestre_3.png"));
 		    case 4:
 			    semestre = new Texture(Gdx.files.internal("img\\semestre_4.png"));
@@ -70,7 +70,7 @@ public class DungeonRoom {
 			case 7:
 		        semestre = new Texture(Gdx.files.internal("img\\semestre_7.png"));
 			case 8:
-	            semestre = new Texture(Gdx.files.internal("img\\semestre_8.png"));*/
+	            semestre = new Texture(Gdx.files.internal("img\\semestre_8.png"));
         }
         initRoomStructure();
     }
@@ -114,7 +114,7 @@ public class DungeonRoom {
         }
         batch.begin();
         System.out.println(this.x);
-        batch.draw(semestre , -360,-240);
+        batch.draw(semestre , -360,-240);//-360, -240
         if(!doors.isEmpty()) {
             if(attached_rooms[0] == 1) {
                 //batch(door_close,this.doors.getPosition().x, this.doors.getPosition().y);
@@ -165,6 +165,13 @@ public class DungeonRoom {
     public int getY() {
         return y;
     }
+    
+    public void dispose() 
+    {
+		semestre.dispose();
+		door_open.dispose();
+		door_close.dispose();
+	}
     public boolean isCompleted(){ return completed;}
     public int[] getAttached_rooms() { return attached_rooms; }
     public Vector2 getCenter(){return center; }

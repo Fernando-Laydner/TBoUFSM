@@ -83,7 +83,7 @@ public class Teste extends ApplicationAdapter {
 			player.toggleKill();
 			player = new Player();
 			ItemSelect.loadGameItems();
-			gsm.setState(GameStateManager.State.DUNGEON);
+			gsm.setState(GameStateManager.State.MENU);
 		}
 	}
 

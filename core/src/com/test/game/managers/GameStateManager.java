@@ -18,7 +18,7 @@ public class GameStateManager {
     public GameStateManager(final Teste app) {
         this.app = app;
         this.states = new Stack<>();
-        this.setState(State.DUNGEON);
+        this.setState(State.MENU);
     }
 
     public Teste application() {

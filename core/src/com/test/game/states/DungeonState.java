@@ -32,6 +32,11 @@ import static com.test.game.utils.b2d.BodyBuilder.*;
 
 import com.test.game.entities.Bullet;
 
+import java.text.Format;
+import java.text.SimpleDateFormat;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+
 public class DungeonState extends GameState {
 
     private final Player player;
@@ -101,10 +106,7 @@ public class DungeonState extends GameState {
     public void update(float delta){
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.P)){
-            if (ispaused)
-                ispaused = false;
-            else
-                ispaused = true;
+            ispaused = !ispaused;
         }
         if (!ispaused) {
             world.step(1 / 60f, 6, 2);
@@ -118,10 +120,6 @@ public class DungeonState extends GameState {
             // Shooting
             player.shoots(delta, bullets, rays, world);
 
-            // Create Lamp
-            if (Gdx.input.isKeyJustPressed(Input.Keys.Y)) {
-                createLamp(player.getPosition().scl(32));
-            }
 
             // Room Check
             if (rooms[(int) pos.x][(int) pos.y].isItSimple() == 0 && !rooms[(int) pos.x][(int) pos.y].isCompleted()) {
@@ -154,7 +152,7 @@ public class DungeonState extends GameState {
 
         if (!ispaused) 
         {
-
+            b2dr.render(world, camera.combined.cpy().scl(PPM));
             rooms[(int) pos.x][(int) pos.y].render(batch);
             if (rooms[(int)pos.x+1][(int)pos.y] != null){
                 rooms[(int) pos.x+1][(int) pos.y].render(batch);
@@ -168,22 +166,47 @@ public class DungeonState extends GameState {
             if (rooms[(int)pos.x][(int)pos.y-1] != null){
                 rooms[(int) pos.x][(int) pos.y-1].render(batch);
             }
-            b2dr.render(world, camera.combined.cpy().scl(PPM));
+
             rays.updateAndRender();
             
             for(Enemy enemy: enemies) {
             	enemy.render(batch);
             }
 
+            // Renders the player
             player.render(batch);
-            
+
+            // Render the list of the items in the map.
             for (Items item: itemlist) {
                 item.render(batch);
             }
 
-            Bullet bala = new Bullet(player);
-            bala.destroyBullet(world, bullets);
+            // Check for bullets to destroy, this could be improved.
+            Bullet bala0 = new Bullet(player);
+            bala0.destroyBullet(world, bullets);
 
+            // Renders bullets.
+            for (Bullet bala: bullets){
+                bala.render(batch);
+                if (player.isHoming && !enemies.isEmpty()){
+                    //bala.Homing(enemies);
+                }
+            }
+
+            if (rooms[(int) pos.x][(int) pos.y].isItSimple() == 1 && enemies.isEmpty()) {
+                rooms[(int) pos.x][(int) pos.y].setCompleted();
+                rooms[(int) pos.x][(int) pos.y].openDoors();
+                rooms[(int) pos.x][(int) pos.y].toggleSimple();
+                if (rooms[(int) pos.x][(int) pos.y].getBoss()){
+                    Items items = ItemSelect.itemSelect();
+                    items.createItems(world, new Vector2(rooms[(int) pos.x][(int) pos.y].getCenter().x, rooms[(int) pos.x][(int) pos.y].getCenter().y - 4 * PPM));
+                    itemlist.add(items);
+                    Items semestre = new SemesterUpgrade();
+                    semestre.createItems(world, new Vector2(rooms[(int) pos.x][(int) pos.y].getCenter().x, rooms[(int) pos.x][(int) pos.y].getCenter().y + 4 * PPM));
+                    itemlist.add(semestre);
+                }
+                rays.setAmbientLight(1f);
+            }
 
             for(Items temp:itemlist){
                 if (temp.getDestroy()){
@@ -200,21 +223,6 @@ public class DungeonState extends GameState {
                 Teste.player.toggleKill();
             }
 
-            if (rooms[(int) pos.x][(int) pos.y].isItSimple() == 1 && enemies.isEmpty()) {
-                rooms[(int) pos.x][(int) pos.y].setCompleted();
-                rooms[(int) pos.x][(int) pos.y].openDoors();
-                rooms[(int) pos.x][(int) pos.y].toggleSimple();
-                if (rooms[(int) pos.x][(int) pos.y].getBoss()){
-                    Items items = ItemSelect.itemSelect();
-                    if(items != null) {
-                        items.createItems(world, new Vector2(rooms[(int) pos.x][(int) pos.y].getCenter().x, rooms[(int) pos.x][(int) pos.y].getCenter().y - 4 * PPM));
-                        itemlist.add(items);
-                    }
-                    Items semestre = new SemesterUpgrade();
-                    semestre.createItems(world, new Vector2(rooms[(int) pos.x][(int) pos.y].getCenter().x, rooms[(int) pos.x][(int) pos.y].getCenter().y + 4 * PPM));
-                }
-                rays.setAmbientLight(1f);
-            }
         }
         else{
             batch.setProjectionMatrix(paused.combined);
@@ -248,12 +256,25 @@ public class DungeonState extends GameState {
     }
 
     private String timer(int totalSecs){
-
         int hours = totalSecs / 3600;
-        int minutes = (totalSecs % 3600) / 60;
-        int seconds = totalSecs % 60;
+        int secondsLeft = totalSecs - hours * 3600;
+        int minutes = secondsLeft / 60;
+        int seconds = secondsLeft - minutes * 60;
 
-        return String.format("%02d:%02d:%02d", hours, minutes, seconds);
+        String formattedTime = "";
+        if (hours < 10)
+            formattedTime += "0";
+        formattedTime += hours + ":";
+
+        if (minutes < 10)
+            formattedTime += "0";
+        formattedTime += minutes + ":";
+
+        if (seconds < 10)
+            formattedTime += "0";
+        formattedTime += seconds ;
+
+        return formattedTime;
     }
 
     private void generateMap(){
@@ -333,28 +354,20 @@ public class DungeonState extends GameState {
             }
         }
 
-        System.out.println(specialrooms.size);
         // Create the selected special rooms.
         int j = 1, n_specialrooms = 2;
         for (Vector2 sala: specialrooms) {
             int x = (int) (target.x - (8 - sala.x) * 720), y = (int) (target.y - (8 - sala.y) * 480);
             if (j == 1){
                 rooms[(int)sala.x - 1][(int)sala.y - 1].setBoss();
-                //System.out.println("Sala Boss: [" +sala.x + "][" + sala.y + "]");
                 rooms[(int)sala.x - 1][(int)sala.y - 1].setIsSpecial(j);
                 j++;
                 continue;
             }
             if (j <= n_specialrooms) {
-                //System.out.println("Sala especial: [" +sala.x + "][" + sala.y + "]");
                 Items items = ItemSelect.itemSelect();
-                if(items != null) {
-                    items.createItems(world, new Vector2(x, y));
-                    itemlist.add(items);
-                }
-                else{
-                    System.out.println("Erro ao criar os itens.");
-                }
+                items.createItems(world, new Vector2(x, y));
+                itemlist.add(items);
                 rooms[(int)sala.x - 1][(int)sala.y - 1].setCompleted();
                 rooms[(int)sala.x - 1][(int)sala.y - 1].setIsSpecial(j);
                 j++;
@@ -368,10 +381,7 @@ public class DungeonState extends GameState {
         if ((fromdir == 1 || fromdir == 2) && rooms[(int)tox + 1][(int)toy - 1] == null && rooms[(int)tox][(int)toy - 1] == null){
             return true;
         }
-        if ((fromdir == 3 || fromdir == 4) && rooms[(int)tox - 1][(int)toy + 1] == null && rooms[(int)tox - 1][(int)toy] == null){
-            return true;
-        }
-        return false;
+        return (fromdir == 3 || fromdir == 4) && rooms[(int) tox - 1][(int) toy + 1] == null && rooms[(int) tox - 1][(int) toy] == null;
     }
 
     private void Room_Transition(){
@@ -415,42 +425,5 @@ public class DungeonState extends GameState {
             player.getBody().setLinearVelocity(0, -25);
             pos.y -= 1;
         }
-    }
-
-    private void addTorch(Body b) {
-        b.setLinearDamping(2f);
-        b.getFixtureList().get(0).setRestitution(.4f);
-        Filter f = new Filter();
-        f.categoryBits = Constants.BIT_SENSOR;
-        f.maskBits = Constants.BIT_PLAYER | Constants.BIT_WALL;
-        b.getFixtureList().get(0).setFilterData(f);
-        currentTorch = new PointLight(rays, 15, new Color(.1f, .5f, .5f, .7f), 2, 0, 0);
-        currentTorch.setSoftnessLength(0f);
-        currentTorch.attachToBody(b);
-    }
-    private void createLamp(Vector2 position) {
-        Body lamp = BodyBuilder.createCircle(world, position.x, position.y, 4, false, false,
-                Constants.BIT_WALL, Constants.BIT_PLAYER, (short) 0);
-
-        Body clamp = BodyBuilder.createBox(world, position.x, (position.y - 16), 2, 2, true, true,
-                Constants.BIT_SENSOR, Constants.BIT_SENSOR, (short) 0);
-
-        Body clamp2 = BodyBuilder.createBox(world, position.x, (position.y + 32), 2, 2, true, true,
-                Constants.BIT_SENSOR, Constants.BIT_SENSOR, (short) 0);
-
-        DistanceJointDef jDef = new DistanceJointDef();
-        jDef.bodyA = clamp2;
-        jDef.bodyB = lamp;
-        jDef.collideConnected = false;
-        jDef.length = 16f / PPM;
-        world.createJoint(jDef);
-
-        jDef.bodyA = clamp;
-        jDef.dampingRatio = .5f;
-        jDef.length = 1.5f / PPM;
-        jDef.frequencyHz = 1.40f;
-        world.createJoint(jDef);
-
-        addTorch(lamp);
     }
 }

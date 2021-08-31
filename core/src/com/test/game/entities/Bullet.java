@@ -1,6 +1,9 @@
 package com.test.game.entities;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -27,6 +30,9 @@ public class Bullet {
     private float damage;
     private float bouncy;
     private float shotspeed;
+    private float cooldown;
+
+    private Texture textura;
 
     public Bullet(Player player){
         b = null;
@@ -37,6 +43,7 @@ public class Bullet {
         damage = player.getDamage();
         bouncy = player.getBouncy();
         shotspeed = player.getShotSpeed();
+        cooldown = 0;
     }
 
     public Bullet(Enemy enemy){
@@ -72,6 +79,7 @@ public class Bullet {
 
         currentTorch = new PointLight(rays, 15, new Color(.4f, .1f, .6f, .7f), 2, 0, 0);
         currentTorch.attachToBody(b);
+        textura = new Texture((Gdx.files.internal("img\\tiro_2.png")));
     }
 
 
@@ -99,6 +107,7 @@ public class Bullet {
         currentTorch = new PointLight(rays, 15, new Color(.6f, .1f, .1f, .7f), 2, 0, 0);
         currentTorch.setSoftnessLength(0f);
         currentTorch.attachToBody(b);
+        textura = new Texture((Gdx.files.internal("img\\tiro_2.png")));
     }
 
     public void destroyBullet(World world, Array<Bullet> bullets){
@@ -122,5 +131,29 @@ public class Bullet {
 
     public float dealDamage(){
         this.b.setLinearDamping(5000f);
-        return damage; }
+        return damage;
+    }
+
+    public void render(Batch batch) {
+        batch.begin();
+        batch.draw(textura, this.b.getPosition().x*PPM-19, this.b.getPosition().y*PPM-20);
+        batch.end();
+    }
+
+    // [WIP] Homing for the bullets.
+    public void Homing(Array<Enemy> enemies){
+        float dist, dist_final = 0;
+        Vector2 dir = new Vector2(0,0), dir_temp = new Vector2(0,0);
+        for (Enemy enemy: enemies) {
+            dir_temp.set(bullet.x - enemy.getBody().getPosition().x*-1, (bullet.y - enemy.getBody().getPosition().y)*-1);
+            dist = Speed.getSpeed(dir_temp.x, dir_temp.y);
+            System.out.println("dir.x");
+            if (dist < dist_final){
+                dir = dir_temp;
+            }
+        }
+
+        //this.b.applyForce(500 * dir.x, 500 * dir.y, dir.x, dir.y, true);
+        this.b.setLinearVelocity((500 * dir.x)*PPM, (500 * dir.y)*PPM);
+    }
 }

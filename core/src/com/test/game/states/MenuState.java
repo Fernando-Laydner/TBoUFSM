@@ -10,6 +10,11 @@ import com.test.game.Teste;
 import com.test.game.entities.Player;
 import com.test.game.managers.GameStateManager;
 
+import java.text.Format;
+import java.text.SimpleDateFormat;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 
 
 public class MenuState extends GameState{
@@ -105,15 +110,6 @@ public class MenuState extends GameState{
 
 	public float sizeCorrectY(float y){
 		return y*(Gdx.graphics.getHeight()/Teste.V_HEIGHT);
-	}
-
-	private String timer(int totalSecs){
-
-		int hours = totalSecs / 3600;
-		int minutes = (totalSecs % 3600) / 60;
-		int seconds = totalSecs % 60;
-
-		return String.format("%02d:%02d:%02d", hours, minutes, seconds);
 	}
 
 	@Override

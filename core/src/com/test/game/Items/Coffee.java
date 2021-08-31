@@ -12,7 +12,7 @@ import com.test.game.entities.Player;
 public class Coffee extends Items {
 	 // Imagem do item
     
-    private Texture coff;
+    private final Texture coff;
 
     public Coffee(){
         coff = new Texture(Gdx.files.internal("img\\Coffee.png"));

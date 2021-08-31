@@ -19,7 +19,7 @@ public class Player {
 
     private TextureAtlas atlas;
     private float hp;
-    private float SPEED = 700;//425
+    private float SPEED = 425;
     private TextureRegion current;
     private int semestre;
     private Body body;
@@ -47,6 +47,7 @@ public class Player {
     private boolean diagonal;
     private boolean dead;
     public float SHOOT_TIMER;
+    public boolean isHoming;
 
 
     public Player(){
@@ -64,6 +65,7 @@ public class Player {
         bouncy = 0f;
         shotSpeed = 8;
         firerate = .4f;
+        isHoming = false;
     }
 
 
@@ -103,6 +105,7 @@ public class Player {
         this.shotSpeed = player.shotSpeed;
         this.firerate = player.firerate;
         this.diagonal = player.diagonal;
+        this.isHoming = player.isHoming;
 
         initAnimations();
     }
@@ -269,8 +272,10 @@ public class Player {
     public int getSemestre(){return semestre;}
     public float getTime(){return time;}
 
+    public void setSPEED(float speed){ SPEED += speed;}
+    public void setHoming(boolean bool) {isHoming = bool;}
     public void changeSemestre(){semestre += 1;}
-    public void toggleDiagonal(){if(diagonal){diagonal = false;}else{ diagonal = true;}}
+    public void toggleDiagonal(){ diagonal = !diagonal; }
     public void takeBulletDamage(Bullet bala){this.hp -= bala.dealDamage();}
     public void takeContactDamage(Enemy enemy){this.hp -= enemy.getDamage();}
     public void addHp(float hp){this.hp += hp;}
@@ -288,7 +293,7 @@ public class Player {
     public void addTime(float delta){time += delta;}
     public void setBouncy(float bouncy){ this.bouncy = bouncy; }
     public void addShotSpeed(float shotSpeed){ this.shotSpeed +=  shotSpeed; }
-    public void toggleKill(){ if (dead) {dead = false; } else { dead = true;} }
+    public void toggleKill(){ dead = !dead; }
     public void dispose() {
         atlas.dispose();
     }

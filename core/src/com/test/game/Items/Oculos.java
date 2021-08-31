@@ -12,7 +12,7 @@ import static com.test.game.utils.Constants.PPM;
 public class Oculos extends Items {
     // Imagem do item
   
-    private Texture tex;
+    private final Texture tex;
 
     public Oculos(){
         tex = new Texture(Gdx.files.internal("img\\Oculos.png"));

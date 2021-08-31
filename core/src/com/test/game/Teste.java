@@ -60,12 +60,12 @@ public class Teste extends ApplicationAdapter {
 			gsm.render();
 		}
 
-		if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)){
+		if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1) && DEBUG){
 			ItemSelect.loadGameItems();
 			gsm.setState(GameStateManager.State.DUNGEON);
 		}
 
-		if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_2)){
+		if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_2) && DEBUG){
 			gsm.setState(GameStateManager.State.MENU);
 		}
 
@@ -83,7 +83,7 @@ public class Teste extends ApplicationAdapter {
 			player.toggleKill();
 			player = new Player();
 			ItemSelect.loadGameItems();
-			gsm.setState(GameStateManager.State.MENU);
+			gsm.setState(GameStateManager.State.DUNGEON);
 		}
 	}
 

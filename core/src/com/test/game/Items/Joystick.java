@@ -10,13 +10,13 @@ import com.test.game.entities.Items;
 import com.test.game.entities.Player;
 
 public class Joystick extends Items {
-        // Imagem do item
-        
-        private Texture joy;
-        
-        public Joystick(){
-        	joy = new Texture(Gdx.files.internal("img\\Joystick.png"));
-        }
+    // Imagem do item
+
+    private final Texture joy;
+
+    public Joystick(){
+        joy = new Texture(Gdx.files.internal("img\\Joystick.png"));
+    }
 
     @Override
     public void render(Batch batch) {
@@ -26,10 +26,10 @@ public class Joystick extends Items {
     }
 
     @Override
-        public void itemEffect(Player player) {
-            name = "Joystick";
-            Teste.player.toggleDiagonal();
-            player.toggleDiagonal();
-            destroy = true;
-        }
+    public void itemEffect(Player player) {
+        name = "Joystick";
+        Teste.player.toggleDiagonal();
+        player.toggleDiagonal();
+        destroy = true;
+    }
 }

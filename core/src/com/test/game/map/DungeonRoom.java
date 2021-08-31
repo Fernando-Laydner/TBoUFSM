@@ -65,25 +65,23 @@ public class DungeonRoom {
         this.y = y;
         this.isSpecial = 0;
         
-        switch(Teste.player.getSemestre()) 
-        {
-        	case 1:
+        if (Teste.player.getSemestre() == 1)
         	    semestre = new Texture(Gdx.files.internal("img\\semestre_1.png"));
-	        case 2:
+        else if (Teste.player.getSemestre() == 2)
           	    semestre = new Texture(Gdx.files.internal("img\\semestre_2.png"));
-		    case 3:
+		else if (Teste.player.getSemestre() == 3)
 		        semestre = new Texture(Gdx.files.internal("img\\semestre_3.png"));
-		    case 4:
+        else if (Teste.player.getSemestre() == 4)
 			    semestre = new Texture(Gdx.files.internal("img\\semestre_4.png"));
-			case 5:
+        else if (Teste.player.getSemestre() == 5)
 		        semestre = new Texture(Gdx.files.internal("img\\semestre_5.png"));
-			case 6:
+        else if (Teste.player.getSemestre() == 6)
 			    semestre = new Texture(Gdx.files.internal("img\\semestre_6.png"));
-			case 7:
+        else if (Teste.player.getSemestre() == 7)
 		        semestre = new Texture(Gdx.files.internal("img\\semestre_7.png"));
-			case 8:
+        else if (Teste.player.getSemestre() == 8)
 	            semestre = new Texture(Gdx.files.internal("img\\semestre_8.png"));
-        }
+
         initRoomStructure();
     }
 
